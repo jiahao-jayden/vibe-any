@@ -9,7 +9,8 @@ export default {
       users: t({ en: "Users", zh: "用户管理" }),
       products: t({ en: "Products", zh: "产品管理" }),
       creditPackages: t({ en: "Credit Packages", zh: "积分包" }),
-      config: t({ en: "Settings", zh: "系统配置" }),
+      config: t({ en: "Settings", zh: "系统设置" }),
+      logout: t({ en: "Logout", zh: "退出登录" }),
     },
     users: {
       title: t({ en: "User Management", zh: "用户管理" }),

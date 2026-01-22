@@ -58,8 +58,8 @@ const { powerBy } = useIntlayer("landing")
 ```
 
 # 禁止
-未经用户的允许，禁止修改数据库的迁移文件，禁止允许迁移的命令
-
+1. 未经用户的允许，禁止修改数据库的迁移文件，禁止允许迁移的命令
+2. aria-label 不需要多语言，保持英文即可
 # 响应规则
 ```tsx
 import { createResponse } from "@/shared/lib/tools/response"

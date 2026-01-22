@@ -31,7 +31,7 @@ const localeToCountry: Record<string, string> = {
   it: "IT",
 }
 
-const getLanguageFlag = (lang: string): string => {
+export const getLanguageFlag = (lang: string): string => {
   const country = localeToCountry[lang]
   if (!country) return "🌐"
   const codePoints = country

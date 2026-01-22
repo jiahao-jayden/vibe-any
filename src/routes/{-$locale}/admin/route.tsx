@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router"
 import AdminSidebar from "@/shared/components/sidebar/admin-sidebar"
-import { SidebarProvider, SidebarTrigger } from "@/shared/components/ui/sidebar"
+import { SidebarProvider } from "@/shared/components/ui/sidebar"
 import { adminMiddleware, authMiddleware } from "@/shared/middleware/auth"
 
 export const Route = createFileRoute("/{-$locale}/admin")({
@@ -19,7 +19,6 @@ function RouteComponent() {
         className="flex min-h-dvh flex-1 flex-col"
         style={{ fontFamily: "Inter Variable" }}
       >
-        <SidebarTrigger />
         <div className="flex-1 space-y-6 p-4 sm:p-6">
           <Outlet />
         </div>
