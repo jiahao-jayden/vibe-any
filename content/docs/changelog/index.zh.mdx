@@ -1,0 +1,74 @@
+---
+title: 更新日志
+description: 基于 MDX 与 content-collections 的版本发布记录
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+
+# 更新日志
+
+一个基于 MDX 的发布记录系统。文件放在 `content/changelog/`，由 content-collections 解析，并映射到 `/changelog/*` 路由 (＾▽＾)
+
+<Callout type="info">
+支持多语言：如 `1-0-0.mdx` 与 `1-0-0.zh.mdx`，语言由文件名后缀识别。
+</Callout>
+
+## 目录结构 (・ω・)
+
+- 目录：`content/changelog/`
+- 命名：`{version}.mdx`（如 `1-0-0.mdx`），多语言 `{version}.zh.mdx`
+- 路由前缀：`/changelog`
+
+## Frontmatter (￣▽￣)
+
+来自 `content-collections.ts` 的 `changelog` 集合：
+
+- `title: string`（必填）
+- `description: string`（必填）
+- `date: string`（ISO 日期时间，必填）
+- `version: string`（可选，如 `v1.0.0`）
+- `tags: string[]`（可选）
+- `published: boolean`（默认 `true`）
+
+示例：
+
+```mdx
+---
+title: "初始版本"
+description: "首发：国际化、认证、支付与 MDX 内容体系"
+date: "2025-08-31T00:00:00Z"
+version: "v1.0.0"
+published: true
+---
+
+### 亮点
+
+- 国际化（en/zh）
+- Better Auth 认证（GitHub/Google OAuth）
+- Stripe 支付，Webhook `/api/payment/webhook`
+```
+
+## 编写指南 (｀・ω・´)
+
+1. 新建 `content/changelog/{version}.mdx`（需时区标准 ISO 日期）。
+2. 按需增加 `1-0-0.zh.mdx` 做本地化版本。
+3. 正文建议包含：`### 亮点`、`### 变更`、`### 修复` 等小节。
+4. 准备发布时设置 `published: true`。
+5. 提交并部署，访问 `/changelog/{version}` 查看。
+
+## 多语言 (・∀・)
+
+- 通过 `.zh.mdx` 等后缀区分语言。
+- 若缺少对应语言文件，则仅展示默认语言版本。
+
+## 常见问题 Q&A
+
+**Q: 页面看不到新版本？**  
+**A:** 请检查 `published: true`、`date` 是否为合法 ISO 字符串，以及文件名（如 `1-2-3.mdx`）。如期待本地化页面，请确保存在对应语言文件。
+
+**Q: 如何排序版本？**  
+**A:** 建议按 `date` 倒序展示，`date` 即为发布时间。
+
+**Q: 可以加标签吗？**  
+**A:** 可以，在 frontmatter 中新增 `tags: []` 数组，便于筛选或标注。
+

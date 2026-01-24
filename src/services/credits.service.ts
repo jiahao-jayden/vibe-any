@@ -1,7 +1,12 @@
-import type { DbTransaction } from "@/db"
+import { type DbTransaction, db } from "@/db"
 import type { credits as creditsTable } from "@/db/credit.schema"
 import { logger } from "@/shared/lib/tools/logger"
-import { getCreditsByUserId, getUserValidCredits, insertCredits } from "@/shared/model/credit.model"
+import {
+  getCreditsByUserId,
+  getUserValidCredits,
+  insertCredits,
+  updateCreditBalance,
+} from "@/shared/model/credit.model"
 import { CreditsType } from "@/shared/types/credit"
 
 export interface IncreaseCreditsParams {
@@ -35,6 +40,11 @@ export class InsufficientCreditsError extends Error {
 }
 
 export class CreditService {
+  /**
+   * Get user's available credits
+   * - Real-time filtering: expired credits are excluded at query time
+   * - No status update needed for expired credits
+   */
   public async getUserCredits(userId: string): Promise<{ userCredits: number; dailyBonusCredits: number }> {
     const creditData = {
       userCredits: 0,
@@ -95,175 +105,102 @@ export class CreditService {
     }
   }
 
+  /**
+   * Decrease user's credits using FIFO consumption
+   * - Prioritizes daily bonus credits first
+   * - Then consumes expiring credits (nearest expiry first)
+   * - Finally consumes permanent credits
+   * - Directly updates source credit records (no separate debit records needed for balance)
+   * - Creates audit debit record for transaction history
+   */
   public async decreaseCredits(params: DecreaseCreditsParams): Promise<DecreaseCreditsResult> {
-    const { userId, credits, creditsType, description, tx } = params
+    const { userId, credits: amount, creditsType, description, tx } = params
 
-    // Validate input
-    if (credits <= 0) {
+    if (amount <= 0) {
       throw new Error("Credits must be greater than 0")
     }
 
-    try {
-      // Quick check: get total available credits first
-      const { userCredits: normalCredits, dailyBonusCredits } = await this.getUserCredits(userId)
-      const totalCredits = normalCredits + dailyBonusCredits
-      if (totalCredits < credits) {
-        throw new InsufficientCreditsError(credits, totalCredits)
-      }
-
-      // Get detailed credits for proper deduction strategy
-      const allCredits = await getUserValidCredits(userId)
+    const executeDecrease = async (dbTx: DbTransaction): Promise<DecreaseCreditsResult> => {
+      const allCredits = await getUserValidCredits(userId, dbTx)
       if (!allCredits || allCredits.length === 0) {
-        throw new InsufficientCreditsError(credits, 0)
+        throw new InsufficientCreditsError(amount, 0)
       }
 
-      // Strategy: Use daily bonus credits first, then other credits (expiring first, permanent last)
-      const dailyBonusCreditRecords = allCredits.filter(
-        (c) => c.creditsType === CreditsType.ADD_DAILY_BONUS && c.credits > 0
-      )
-      const otherCreditRecords = allCredits.filter(
-        (c) => c.creditsType !== CreditsType.ADD_DAILY_BONUS && c.credits > 0
-      )
+      const totalAvailable = allCredits.reduce((sum, c) => sum + c.credits, 0)
+      if (totalAvailable < amount) {
+        throw new InsufficientCreditsError(amount, totalAvailable)
+      }
 
-      let remainingToDeduct = credits
-      const deductionRecords: Array<{
-        paymentId: string
-        expiresAt: Date | null
+      const dailyBonusCredits = allCredits.filter(
+        (c) => c.creditsType === CreditsType.ADD_DAILY_BONUS
+      )
+      const otherCredits = allCredits.filter(
+        (c) => c.creditsType !== CreditsType.ADD_DAILY_BONUS
+      )
+      const sortedCredits = [...dailyBonusCredits, ...otherCredits]
+
+      let remainingToDeduct = amount
+      const consumptionLog: Array<{
+        id: string
         amount: number
         creditsType: string
+        expiresAt: Date | null
       }> = []
 
-      // First: deduct from daily bonus credits
-      for (const credit of dailyBonusCreditRecords) {
+      for (const credit of sortedCredits) {
         if (remainingToDeduct <= 0) break
 
         const deductAmount = Math.min(credit.credits, remainingToDeduct)
-        deductionRecords.push({
-          paymentId: credit.paymentId || "",
-          expiresAt: credit.expiresAt,
+        const newBalance = credit.credits - deductAmount
+
+        await updateCreditBalance(credit.id, newBalance, dbTx)
+
+        consumptionLog.push({
+          id: credit.id,
           amount: deductAmount,
           creditsType: credit.creditsType,
+          expiresAt: credit.expiresAt,
         })
 
         remainingToDeduct -= deductAmount
       }
 
-      // Second: deduct from other credits
-      for (const credit of otherCreditRecords) {
-        if (remainingToDeduct <= 0) break
-
-        const deductAmount = Math.min(credit.credits, remainingToDeduct)
-        deductionRecords.push({
-          paymentId: credit.paymentId || "",
-          expiresAt: credit.expiresAt,
-          amount: deductAmount,
-          creditsType: credit.creditsType,
-        })
-
-        remainingToDeduct -= deductAmount
-      }
-
-      if (remainingToDeduct > 0) {
-        throw new InsufficientCreditsError(credits, credits - remainingToDeduct)
-      }
-
-      // Create deduction record
-      const sourceInfo = deductionRecords
+      const sourceInfo = consumptionLog
         .map(
-          (record) =>
-            `${record.amount} from ${record.creditsType}${record.expiresAt ? ` (expires: ${record.expiresAt.toISOString()})` : ""}`
+          (log) =>
+            `${log.amount} from ${log.creditsType}${log.expiresAt ? ` (exp: ${log.expiresAt.toISOString().split("T")[0]})` : ""}`
         )
         .join("; ")
 
-      const data: typeof creditsTable.$inferInsert = {
+      const auditData: typeof creditsTable.$inferInsert = {
         userId,
-        paymentId: deductionRecords[0]?.paymentId || null,
-        credits: -credits,
+        paymentId: null,
+        credits: -amount,
         transactionType: "debit",
         creditsType,
         expiresAt: null,
-        description: description || `Sources: ${sourceInfo}`,
+        description: description || `FIFO consumption: ${sourceInfo}`,
       }
 
-      const result = await insertCredits(data, tx)
+      const result = await insertCredits(auditData, dbTx)
 
       return {
-        remainingCredits: totalCredits - credits,
+        remainingCredits: totalAvailable - amount,
         transactionId: result.transactionId,
       }
+    }
+
+    try {
+      if (tx) {
+        return await executeDecrease(tx)
+      }
+
+      return await db.transaction(async (dbTx) => {
+        return await executeDecrease(dbTx)
+      })
     } catch (error) {
       logger.error(`Failed to decrease credits for user ${userId}: ${error}`)
       throw error
     }
   }
 }
-
-// // Functional service exports expected by ai.service.ts
-// export const CreditsService = {
-//   async getUserBalance(userId: string): Promise<number> {
-//     const credits = await getUserValidCredits(userId)
-//     if (!credits || credits.length === 0) {
-//       return 0
-//     }
-//     return credits.reduce((sum, c) => sum + (c.credits || 0), 0)
-//   },
-
-//   async getUserCredits(userId: string) {
-//     // return valid (non-expired) credits list for transparency
-//     const credits = await getUserValidCredits(userId)
-//     return credits ?? []
-//   },
-
-//   async deductCredits(userId: string, amount: number, creditsType: string, metadata?: Record<string, unknown>) {
-//     if (amount <= 0) {
-//       return { success: false, error: "amount must be > 0" }
-//     }
-
-//     const balance = await this.getUserBalance(userId)
-//     if (balance < amount) {
-//       return {
-//         success: false,
-//         error: `Insufficient credits. Current balance: ${balance}, required: ${amount}`,
-//         statusCode: 402,
-//       }
-//     }
-
-//     // identify source payment and expiry
-//     let leftCredits = 0
-//     let sourcePaymentId = ""
-//     let sourceExpiresAt: Date | null = null
-
-//     const userCredits = await getUserValidCredits(userId)
-//     if (userCredits) {
-//       for (const credit of userCredits) {
-//         leftCredits += credit.credits
-//         if (leftCredits >= amount) {
-//           sourcePaymentId = credit.paymentId || ""
-//           sourceExpiresAt = credit.expiresAt
-//           break
-//         }
-//       }
-//     }
-
-//     const data: typeof creditsTable.$inferInsert = {
-//       userId,
-//       paymentId: sourcePaymentId,
-//       credits: -amount,
-//       transactionType: "debit",
-//       creditsType: creditsType,
-//       expiresAt: sourceExpiresAt,
-//       description: metadata ? JSON.stringify(metadata) : undefined,
-//     }
-
-//     const result = await insertCredits(data)
-
-//     return {
-//       success: true,
-//       usage: {
-//         transactionId: result.transactionId,
-//         amount,
-//         creditsType,
-//       },
-//     }
-//   },
-// }

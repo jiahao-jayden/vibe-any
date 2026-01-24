@@ -1,0 +1,162 @@
+---
+title: 路线图
+description: 使用 JSON 配置与可复用组件渲染看板式路线图，支持多语言
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+
+# 路线图
+
+在 `content/roadmap/` 下使用 JSON 配置一个看板式路线图，并由类型安全的 React 组件进行渲染。每种语言可以维护独立的配置文件。
+
+<Callout type="info">
+使用 `config.zh.json` / `config.en.json` 按语言定义列与条目。Schema 由 Content Collections + Zod 校验。
+</Callout>
+
+> 配置文件位于 `content/roadmap/`，Schema 在 `content-collections.ts` 的 `roadmap` 集合中定义。
+
+## JSON 示例
+
+```jsonc title="content/roadmap/config.zh.json"
+{
+  "columns": [
+    {
+      "title": "计划中",
+      "icon": "Calendar", // Lucide 图标
+      "color": "#60A5FA",
+      "items": [
+        { "title": "Landing 视频介绍" }
+      ]
+    },
+    {
+      "title": "进行中",
+      "icon": "Loader", // Lucide 图标
+      "color": "#F59E0B",
+      "items": []
+    },
+    {
+      "title": "已发布",
+      "icon": "Rocket", // Lucide 图标
+      "color": "#34D399",
+      "items": []
+    }
+  ]
+}
+```
+
+约束（由 Zod 校验）：
+- `icon`：Lucide 图标名，仅字母，如 `Rocket`
+- `color`：16 进制颜色，如 `#C084FC`
+- `items[]`：`{ title: string }`
+
+## 创建与维护
+
+<div className="fd-steps">
+  <div className="fd-step">
+    ### 创建文件
+    在 `content/roadmap/` 新建 `config.en.json`（英文）与 `config.zh.json`（中文），并纳入版本控制。
+    
+    ```bash
+    content/roadmap/
+    ├─ config.en.json
+    └─ config.zh.json
+    ```
+  </div>
+  <div className="fd-step">
+    ### 定义列
+    在每个语言文件中添加 `columns` 数组；每列包含可读的 `title`、Lucide `icon` 名称（仅字母）与十六进制 `color`。
+    
+    ```jsonc title="config.zh.json（骨架）"
+    {
+      "columns": [
+        { "title": "计划中", "icon": "Calendar", "color": "#60A5FA", "items": [] },
+        { "title": "进行中", "icon": "Loader", "color": "#F59E0B", "items": [] },
+        { "title": "已发布", "icon": "Rocket", "color": "#34D399", "items": [] }
+      ]
+    }
+    ```
+  </div>
+  <div className="fd-step">
+    ### 添加条目
+    在列的 `items` 中加入 `{ "title": "你的条目" }`。每个条目代表一项路线图任务。
+    
+    ```jsonc title="添加条目"
+    {
+      "title": "计划中",
+      "items": [
+        { "title": "Landing 视频介绍" },
+        { "title": "AI 新手引导" }
+      ]
+    }
+    ```
+  </div>
+  <div className="fd-step">
+    ### 多语言维护
+    同步维护中英两份文件。系统会根据当前语言选择对应文件；不同语言可以有不同的列顺序与条目。
+    
+    ```bash
+    # 仅英文
+    content/roadmap/config.en.json
+    
+    # 仅中文
+    content/roadmap/config.zh.json
+    ```
+  </div>
+  <div className="fd-step">
+    ### 调整顺序 / 删除
+    通过调整数组顺序来改变展示顺序；删除数组元素即可移除条目。看板从左到右与数组顺序一致。
+    
+    ```jsonc title="通过数组顺序调整展示"
+    {
+      "columns": [
+        { "title": "已发布", ... },
+        { "title": "进行中", ... },
+        { "title": "计划中", ... }
+      ]
+    }
+    ```
+  </div>
+  <div className="fd-step">
+    ### 预览与发布
+    本地使用 `bun run dev` 预览；提交代码后将自动发布，无需改动应用代码。
+    
+    ```bash
+    bun run dev
+    # 推送到仓库 → CI/CD 自动发布
+    ```
+  </div>
+</div>
+
+## 渲染
+
+```tsx title="使用 Board 组件"
+import { Board, type RoadmapColumn } from '@/components/roadmap'
+
+const columns: RoadmapColumn[] = [
+  { title: '计划中', key: 'planned', icon: 'Calendar', color: '#60A5FA', items: [{ title: '...' }] },
+  { title: '进行中', key: 'inprogress', icon: 'Loader', color: '#F59E0B', items: [] },
+  { title: '已发布', key: 'shipped', icon: 'Rocket', color: '#34D399', items: [] },
+]
+
+<Board
+  columns={columns}
+/> 
+```
+
+## 最佳实践
+
+- 条目标题简洁清晰，额外语义放到自定义字段
+- 列颜色选择对比度高、可读性强的色值
+- 控制列数量在 3–4 个，避免信息拥挤
+- 根据语言维护不同配置，面向不同地区或用户群展示
+
+## 常见问题 Q&A
+
+**Q: 图标名称不显示或报错？**  
+**A:** `icon` 必须是 Lucide 组件名（仅字母），如 `Rocket`、`Calendar`，注意大小写。
+
+**Q: 颜色不生效？**  
+**A:** `color` 必须是 `#RRGGBB` 或 `#RGB` 的十六进制颜色，错误值会被校验拒绝。
+
+**Q: 如何按语言展示不同的路线图？**  
+**A:** 同时维护 `config.zh.json` 与 `config.en.json`，系统会按当前语言加载对应文件。

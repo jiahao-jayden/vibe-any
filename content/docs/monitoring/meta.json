@@ -1,0 +1,10 @@
+{
+  "title": "Monitoring",
+  "pages": [
+    "index",
+    "getting-started",
+    "configuration",
+    "error-tracking",
+    "rollbar-integration"
+  ]
+}

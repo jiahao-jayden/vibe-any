@@ -1,0 +1,8 @@
+{
+  "pages": [
+    "...database",
+    "payment",
+    "...credit",
+    "ai"
+  ]
+}

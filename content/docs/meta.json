@@ -1,0 +1,20 @@
+{
+  "pages": [
+    "index",
+    "---Introduction---",
+    "...introduction",
+    "config",
+    "---Deployment---",
+    "deployment",
+    "---Integration---",
+    "...integration",
+    "analytics",
+    "monitoring",
+    "...landing",
+    "...roadmap",
+    "...blog",
+    "---Blocks---",
+    "...blocks",
+    "...backstage"
+  ]
+}

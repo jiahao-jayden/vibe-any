@@ -1,5 +1,6 @@
-import { CreditCardIcon, MenuIcon, SettingsIcon, UserIcon } from "lucide-react"
+import { CoinsIcon, MenuIcon, UserIcon } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
+import { useIntlayer } from "react-intlayer"
 import { Dialog, DialogContent, DialogTitle } from "@/shared/components/ui/dialog"
 import {
   DropdownMenu,
@@ -10,14 +11,8 @@ import {
 import { useGlobalContext } from "@/shared/context/global.context"
 import { cn } from "@/shared/lib/utils"
 import { AccountPanel } from "./account-panel"
-import { BillingPanel } from "./billing-panel"
+import { CreditHistoryPanel } from "./credit-history-panel"
 import { SettingsPanel } from "./settings-panel"
-
-const menu = [
-  { id: "account", label: "账户", icon: UserIcon },
-  { id: "settings", label: "设置", icon: SettingsIcon },
-  { id: "billing", label: "使用情况", icon: CreditCardIcon },
-]
 
 interface UserDashboardProps {
   open: boolean
@@ -29,8 +24,12 @@ export const UserDashboard = ({ open, onOpenChange }: UserDashboardProps) => {
   const [isOverflowing, setIsOverflowing] = useState(false)
   const tabsRef = useRef<HTMLDivElement>(null)
   const { userInfo } = useGlobalContext()
-  const user = userInfo?.user
-  const payment = userInfo?.payment
+  const { menu: menuLabels } = useIntlayer("user-dashboard")
+
+  const menu = [
+    { id: "account", label: menuLabels.account.value, icon: UserIcon },
+    { id: "credit-history", label: menuLabels.usage.value, icon: CoinsIcon },
+  ]
 
   useEffect(() => {
     const checkOverflow = () => {
@@ -43,21 +42,19 @@ export const UserDashboard = ({ open, onOpenChange }: UserDashboardProps) => {
     return () => window.removeEventListener("resize", checkOverflow)
   }, [open])
 
-  if (!user) return null
-
-  const planName = payment?.activePlan?.id ?? "free"
+  if (!userInfo?.user) return null
 
   return (
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
     >
-      <DialogContent className="max-w-96 sm:max-w-2xl! md:max-w-4xl!  w-full min-h-125 flex flex-col md:flex-row p-0 gap-0">
+      <DialogContent className="max-w-96 sm:max-w-2xl! md:max-w-4xl! w-full h-[70dvh] md:h-150 flex flex-col md:flex-row p-0 gap-0">
         <DialogTitle className="sr-only">User Dashboard</DialogTitle>
 
         {/* Mobile header + tabs */}
         <div className="md:hidden p-4 pb-0 space-y-4">
-          <h2 className="text-xl font-semibold">设置</h2>
+          <h2 className="text-xl font-semibold">{menuLabels.settings.value}</h2>
           <div className="flex items-center border-b">
             <div
               ref={tabsRef}
@@ -124,9 +121,9 @@ export const UserDashboard = ({ open, onOpenChange }: UserDashboardProps) => {
 
         {/* Main content */}
         <main className="flex-1 py-6 md:py-8 px-4 md:px-5 overflow-y-auto">
-          {currentMenuId === "account" && <AccountPanel user={user} planName={planName} />}
+          {currentMenuId === "account" && <AccountPanel />}
           {currentMenuId === "settings" && <SettingsPanel />}
-          {currentMenuId === "billing" && <BillingPanel />}
+          {currentMenuId === "credit-history" && <CreditHistoryPanel />}
         </main>
       </DialogContent>
     </Dialog>

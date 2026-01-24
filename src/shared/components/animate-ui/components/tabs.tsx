@@ -6,8 +6,8 @@ import * as React from "react"
 import {
   MotionHighlight,
   MotionHighlightItem,
-} from "@/components/animate-ui/effects/motion-highlight"
-import { cn } from "@/lib/utils"
+} from "@/shared/components/animate-ui/effects/motion-highlight"
+import { cn } from "@/shared/lib/utils"
 
 interface TabsContextType<T extends string> {
   activeValue: T

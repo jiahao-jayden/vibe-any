@@ -2,7 +2,6 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
 import { validatePrefix } from "intlayer"
 import { IntlayerProvider, useLocale } from "react-intlayer"
 import { GlobalNotFoundComponent } from "@/shared/components/landing/not-found"
-import { GlobalContextProvider } from "@/shared/context/global.context"
 
 export const Route = createFileRoute("/{-$locale}")({
   beforeLoad: ({ params }) => {
@@ -28,9 +27,7 @@ function LayoutComponent() {
 
   return (
     <IntlayerProvider locale={locale ?? defaultLocale}>
-      <GlobalContextProvider>
-        <Outlet />
-      </GlobalContextProvider>
+      <Outlet />
     </IntlayerProvider>
   )
 }

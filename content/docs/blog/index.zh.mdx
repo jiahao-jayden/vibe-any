@@ -1,0 +1,118 @@
+---
+title: 博客
+description: 使用 content-collections 与 MDX 创建、管理并多语言化你的博客
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+# 博客
+
+基于 MDX 的博客，支持分类、作者与多语言。列表页位于 `/blog`，支持分类筛选与符合 SEO 的排序。
+
+<Callout type="info">
+文章位于 `content/blog`。使用 `post.zh.mdx` 这样的语言后缀来提供中文版本。
+</Callout>
+
+## 博客系统结构
+
+- 内容目录：`content/blog`、`content/author`、`content/category`
+- 应用路由：`src/app/[locale]/(site)/blog`（列表）与 `src/app/[locale]/(site)/blog/[...slug]`（文章）
+- 组件：`src/components/blog`（`blog-grid.tsx`、`blog-card.tsx` 等）
+- 工具：`src/lib/blog/get-categories.ts`
+
+## 源配置（Source Configuration）
+
+本项目使用 Content Collections，Schema 定义在 `content-collections.ts`：
+
+```ts title="content-collections.ts（节选）"
+// 文章集合
+const posts = defineCollection({
+  name: "post",
+  directory: "content/blog",
+  include: "**/*.mdx",
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    image: z.string().optional(),
+    date: z.string().datetime(),
+    published: z.boolean().default(true),
+    categories: z.array(z.string()),
+    author: z.string(),
+    tags: z.array(z.string()).optional(),
+    estimatedTime: z.number().optional(),
+  }),
+})
+
+// 作者与分类集合也在此文件中以类似方式声明
+```
+
+列表页从 `.content-collections/generated` 读取数据，并按语言/分类筛选：
+
+```tsx title="src/app/[locale]/(site)/blog/page.tsx（节选）"
+import { allPosts } from "../../../../../.content-collections/generated"
+
+const filteredPosts = allPosts
+  .filter((post) => post.locale === locale && /* 分类过滤 */ true)
+  .sort((a, b) => toTime(b.date) - toTime(a.date))
+```
+
+## 创建博客内容
+
+<Tabs items={['新增作者', '新增分类', '新增文章']}>
+  <Tab value="新增作者">
+    ```mdx title="content/author/vibe-any.mdx"
+    ---
+    slug: vibe-any
+    name: VibeAny
+    avatar: /avatars/user1.avif
+    ---
+    ```
+  </Tab>
+  <Tab value="新增分类">
+    ```mdx title="content/category/product.mdx"
+    ---
+    slug: product
+    name: 产品
+    description: 产品公告与更新
+    ---
+    ```
+  </Tab>
+  <Tab value="新增文章">
+    ```mdx title="content/blog/welcome-to-vibeany.zh.mdx"
+    ---
+    title: 欢迎来到 VibeAny
+    description: AI、认证、支付与多语言加速你的交付
+    image: /docs/blog/image.avif
+    date: "2025-01-01"
+    published: true
+    categories: ["product"]
+    author: "vibe-any"
+    ---
+
+    你的内容写在这里…
+    ```
+  </Tab>
+</Tabs>
+
+## 多语言支持
+
+默认语言用 `filename.mdx`；中文用 `filename.zh.mdx`。作者与分类遵循同样的命名规则。
+
+## 最佳实践
+
+- 必填 `date` 与 `published`，保证排序稳定
+- 为文章设置 `image`，提升卡片与社交分享效果
+![](/docs/blog/blog-card-zh.avif)
+- 标题简洁，`description` 用于补充上下文
+- 为各语言分别提供内容，体验更完整
+
+## 程序化查询（可选）
+
+```ts title="按分类获取文章"
+import { allPosts } from "@/.content-collections/generated"
+
+export const getPostsByCategory = (slug: string, locale: string) =>
+  allPosts.filter((p) => p.locale === locale && p.categories?.some((c: any) => c?.slug === slug))
+```
+

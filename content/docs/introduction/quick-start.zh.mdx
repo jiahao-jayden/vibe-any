@@ -1,0 +1,79 @@
+---
+title: 快速开始
+description: VibeAny 快速上手指南
+---
+
+# VibeAny 使用指南
+
+VibeAny 是一个现代化的 AI 开发脚手架，基于 Next.js 构建，内置用户系统、AI 能力、支付与管理后台，帮助你更快把点子上线。
+
+## 前提条件（开始前，先准备好这些）
+
+<div className="fd-steps">
+  <div className="fd-step">
+    ### 1. Node.js
+    Node.js 是一个运行时环境，用来在本地执行 JavaScript 代码。
+    如果未安装，请前往 [Node.js 官方网站](https://nodejs.org/) 下载 LTS 版本。
+
+    ```bash
+    node --version
+    ```
+  </div>
+  <div className="fd-step">
+    ### 2. Git
+    Git 是版本控制工具，用来跟踪代码历史、协作开发。
+    如果未安装，请前往 [Git 官方网站](https://git-scm.com/) 下载。
+
+    ```bash
+    git --version
+    ```
+  </div>
+  <div className="fd-step">
+    ### 3. 软件包管理器（Package Manager）
+    用来安装依赖。我们推荐 <code>pnpm</code>，也可以使用 <code>npm</code> 或 <code>bun</code>、<code>yarn</code>。
+
+    ```bash
+    # 使用 npm 安装 pnpm
+    npm install -g pnpm
+    ```
+  </div>
+</div>
+
+## 开始动手（3 步）
+
+<div className="fd-steps">
+  <div className="fd-step" >
+    ### 1. 克隆项目
+    <p>将仓库代码下载到本地。你可以把 <code>vibe-any</code> 换成任意文件夹名。</p>
+    <p>不想用 Git？可以直接下载 ZIP：</p>
+    <p>
+      <a href="https://github.com/待修改/main.zip" target="_blank" rel="noreferrer">下载 ZIP</a>
+    </p>
+
+    ```bash
+    git clone https://github.com/待修改/vibe-any.git
+    cd vibe-any
+    ```
+  </div>
+  <div className="fd-step" >
+    ### 2. 安装依赖
+    <p>选择一个包管理器执行安装。以下四种命令任选其一：</p>
+
+    ```bash
+    bun install
+    npm install
+    pnpm install
+    yarn install
+    ```
+  </div>
+  <div className="fd-step" >
+    ### 3. 设置环境变量
+    <p><code>.env</code> 用来存放项目运行所需的“钥匙”（例如数据库、第三方服务密钥）。先复制示例文件，再按注释填写。</p>
+
+    ```bash
+    cp .env.example .env
+    ```
+  </div>
+</div>
+
+> 小贴士：常见变量包括 <code>DATABASE_URL</code>、OAuth（GitHub/Google）配置、以及支付相关密钥。详见文档“环境变量”。

@@ -2,16 +2,16 @@
 
 import { useTheme } from "next-themes"
 import * as React from "react"
-import { CopyButton } from "@/components/animate-ui/buttons/copy"
-import type { TabsProps } from "@/components/animate-ui/components/tabs"
+import { CopyButton } from "@/shared/components/animate-ui/buttons/copy"
+import type { TabsProps } from "@/shared/components/animate-ui/components/tabs"
 import {
   Tabs,
   TabsContent,
   TabsContents,
   TabsList,
   TabsTrigger,
-} from "@/components/animate-ui/components/tabs"
-import { cn } from "@/lib/utils"
+} from "@/shared/components/animate-ui/components/tabs"
+import { cn } from "@/shared/lib/utils"
 
 type CodeTabsProps = {
   codes: Record<string, string>

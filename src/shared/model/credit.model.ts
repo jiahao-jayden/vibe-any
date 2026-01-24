@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, gte, isNull, or } from "drizzle-orm"
+import { and, asc, count, desc, eq, gt, gte, isNull, or, sql } from "drizzle-orm"
 import { type DbTransaction, db } from "@/db"
 import { credits } from "@/db/credit.schema"
 
@@ -8,22 +8,50 @@ export async function insertCredits(data: typeof credits.$inferInsert, tx?: DbTr
   return result
 }
 
-export async function getUserValidCredits(userId: string) {
-  const data = await db
+/**
+ * Get valid credit records for a user (FIFO order)
+ * - Only returns credit records (transactionType = "credit") with remaining credits > 0
+ * - Filters out expired credits at query time (no status update needed)
+ * - Orders by expiresAt ASC (null last) to prioritize expiring credits
+ */
+export async function getUserValidCredits(userId: string, tx?: DbTransaction) {
+  const dbInstance = tx || db
+  const now = new Date()
+
+  const data = await dbInstance
     .select()
     .from(credits)
     .where(
       and(
         eq(credits.userId, userId),
-        // Include credits that are either permanent (expiresAt is null) or not yet expired
-        or(isNull(credits.expiresAt), gte(credits.expiresAt, new Date()))
+        eq(credits.transactionType, "credit"),
+        gt(credits.credits, 0),
+        or(isNull(credits.expiresAt), gte(credits.expiresAt, now))
       )
     )
-    // Order by expiry date: credits with expiry date first (ascending), then permanent credits (null) last
-    // This ensures we use expiring credits before permanent ones (FIFO for expiring, LIFO for permanent)
-    .orderBy(asc(credits.expiresAt))
+    .orderBy(
+      sql`CASE WHEN ${credits.expiresAt} IS NULL THEN 1 ELSE 0 END`,
+      asc(credits.expiresAt),
+      asc(credits.createdAt)
+    )
 
   return data
+}
+
+/**
+ * Update the remaining credits of a credit record
+ * Used for FIFO consumption - directly decrements the source credit record
+ */
+export async function updateCreditBalance(
+  id: string,
+  newCredits: number,
+  tx?: DbTransaction
+) {
+  const dbInstance = tx || db
+  await dbInstance
+    .update(credits)
+    .set({ credits: newCredits })
+    .where(eq(credits.id, id))
 }
 
 export async function getCreditsByUserId(

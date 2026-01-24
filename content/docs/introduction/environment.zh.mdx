@@ -1,0 +1,118 @@
+---
+title: 环境变量配置
+description: 通过环境变量配置项目，即可启用所有必需的第三方集成服务
+---
+
+### 数据库
+在数据库设置文档中学习如何设置数据库。
+| 变量   | 描述 |
+| -------- | ------- |
+| DATABASE_URL  | 数据库连接 URL    |
+
+### 鉴权
+| 变量   | 描述 |
+| -------- | ------- |
+| ADMIN_EMAILS  |  管理员邮箱    |
+| BETTER_AUTH_SECRET  |  鉴权密钥，可以在[better-auth](https://www.better-auth.com/docs/installation#set-environment-variables)官网生成    |
+| BETTER_AUTH_URL  |  鉴权URL    |
+
+如果你想使用OAuth（支持github或者谷歌登入），可以继续配置如下内容：
+| 变量   | 描述 |
+| -------- | ------- |
+| GITHUB_CLIENT_ID  |  GitHub OAuth 客户端 ID    |
+| GITHUB_CLIENT_SECRET  |  GitHub OAuth 客户端密钥    |
+| GOOGLE_CLIENT_ID  |  Google OAuth 客户端 ID    |
+| GOOGLE_CLIENT_SECRET  |  Google OAuth 客户端密钥    |
+
+### 邮件
+你可以使用自己的邮件服务器，也可以使用 resend 服务。
+| 变量   | 描述 |
+| -------- | ------- |
+| EMAIL_HOST  |  邮件服务器主机    |
+| EMAIL_ADDRESS  |  发件人邮箱    |
+| EMAIL_USER  |  发件人用户名    |
+| EMAIL_PASSWORD  |  发件人密码    |
+
+二者择一即可，如果同时配置，默认使用 resend 服务。
+| 变量   | 描述 |
+| -------- | ------- |
+| RESEND_API_KEY  |  resend 服务 API 密钥    |
+### 支付 / 积分
+
+#### Stripe 服务
+| 变量 | 描述 |
+| -------- | ------- |
+| NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY | Stripe 服务 publishable 密钥 |
+| STRIPE_SECRET_KEY | Stripe 服务 API 密钥 |
+| STRIPE_WEBHOOK_SECRET | Stripe 服务 webhook 密钥 |
+| NEXT_PUBLIC_STRIPE_PRO_MONTHLY_PRICE_ID | Stripe 服务 pro 每月价格 ID |
+| NEXT_PUBLIC_STRIPE_PRO_YEARLY_PRICE_ID | Stripe 服务 pro 每年价格 ID |
+| NEXT_PUBLIC_STRIPE_LIFETIME_PRICE_ID | Stripe 服务 lifetime 价格 ID |
+| NEXT_PUBLIC_STRIPE_100_CREDITS_PRICE_ID | Stripe 服务 100 积分价格 ID(如果不需要积分功能，可以不配置) |
+| NEXT_PUBLIC_STRIPE_200_CREDITS_PRICE_ID | Stripe 服务 200 积分价格 ID(如果不需要积分功能，可以不配置) |
+
+#### Creem 服务
+| 变量 | 描述 |
+| -------- | ------- |
+| CREEM_X_API_KEY | Creem 服务 API 密钥 |
+| CREEM_TEST_MODE | Creem 服务测试模式 |
+| CREEM_WEBHOOK_SECRET | Creem 服务 webhook 密钥 |
+| NEXT_PUBLIC_CREEM_PRO_MONTHLY_PRODUCT_ID | Creem 服务 pro 每月产品 ID |
+| NEXT_PUBLIC_CREEM_LIFETIME_PRODUCT_ID | Creem 服务 lifetime 产品 ID |
+| NEXT_PUBLIC_CREEM_100_CREDITS_PRODUCT_ID | Creem 服务 100 积分产品 ID(如果不需要积分功能，可以不配置) |
+| NEXT_PUBLIC_CREEM_200_CREDITS_PRODUCT_ID | Creem 服务 200 积分产品 ID(如果不需要积分功能，可以不配置) |
+
+
+### 存储
+| 变量   | 描述 |
+| -------- | ------- |
+|STORAGE_ENABLED  | 存储服务是否启用（true/false）    |
+|STORAGE_ENDPOINT  | 存储服务端点    |
+|STORAGE_ACCESS_KEY  | 存储服务访问密钥    |
+|STORAGE_SECRET_KEY  | 存储服务密钥    |
+|STORAGE_BUCKET  | 存储服务桶    |
+|STORAGE_USE_ACL  | 存储服务是否使用 ACL（true/false）    |
+
+
+### AI功能
+| 变量   | 描述 |
+| -------- | ------- |
+｜OPENAI_BASE_URL  |  OpenAI API 端点    |
+｜OPENAI_API_KEY  |  OpenAI API 密钥    |
+｜OPEN_ROUTER_KEY  |  OpenRouter API 密钥    |
+｜SILICONFLOW_API_KEY  |  SiliconFlow API 密钥    |
+｜SILICONFLOW_BASE_URL  |  SiliconFlow API 端点    |
+｜GOOGLE_GENERATIVE_AI_API_KEY  |  Google Generative AI API 密钥    |
+｜ELEVENLABS_API_KEY  |  ElevenLabs API 密钥    |
+
+### 统计分析
+
+| 变量 | 描述 |
+| -------- | ------- |
+| NEXT_PUBLIC_GA_ID | Google Analytics 4 跟踪 ID |
+| NEXT_PUBLIC_POSTHOG_KEY | PostHog 项目 API Key |
+| NEXT_PUBLIC_PLAUSIBLE_DOMAIN | Plausible 站点域名 |
+| NEXT_PUBLIC_UMAMI_WEBSITE_ID | Umami 网站 ID |
+| NEXT_PUBLIC_OPENPANEL_CLIENT_ID | OpenPanel 客户端 ID |
+| NEXT_PUBLIC_DATAFAST_WEBSITE_ID | DataFast 网站 ID |
+| NEXT_PUBLIC_SELINE_TOKEN | Seline Token |
+| NEXT_PUBLIC_51LA_SITE_ID | 51.la 站点 ID |
+
+### 错误监控
+
+| 变量 | 描述 |
+| -------- | ------- |
+| NEXT_PUBLIC_ROLLBAR_ACCESS_TOKEN | Rollbar 浏览器端访问令牌 |
+| ROLLBAR_SERVER_ACCESS_TOKEN | Rollbar 服务端访问令牌 |
+| NEXT_PUBLIC_ENABLE_GA_IN_DEV | 是否在开发环境启用 GA（true/false，可选） |
+| NEXT_PUBLIC_ENABLE_ERROR_REPORTING_IN_DEV | 是否在开发环境启用错误上报（true/false，可选） |
+
+### 下一步：配置文件
+
+完成环境变量配置后，继续参考以下配置文档：
+
+- 网站配置：`/docs/config/website`
+- 导航栏配置：`/docs/config/navbar`
+- 页脚配置：`/docs/config/footer`
+- 价格计划：`/docs/config/price-plans`
+- 积分套餐：`/docs/config/credit-packages`

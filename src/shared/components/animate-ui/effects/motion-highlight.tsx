@@ -4,7 +4,7 @@ import type { Transition } from "motion/react"
 import { AnimatePresence, motion } from "motion/react"
 import * as React from "react"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/shared/lib/utils"
 
 type MotionHighlightMode = "children" | "parent"
 
@@ -33,7 +33,9 @@ interface MotionHighlightContextType<T extends string> {
   forceUpdateBounds?: boolean
 }
 
-const MotionHighlightContext = React.createContext<MotionHighlightContextType<any> | undefined>(undefined)
+const MotionHighlightContext = React.createContext<MotionHighlightContextType<any> | undefined>(
+  undefined
+)
 
 function useMotionHighlight<T extends string>(): MotionHighlightContextType<T> {
   const context = React.use(MotionHighlightContext)
@@ -83,12 +85,13 @@ type UncontrolledParentModeMotionHighlightProps<T extends string> = BaseMotionHi
     children: React.ReactElement | React.ReactElement[]
   }
 
-type UncontrolledChildrenModeMotionHighlightProps<T extends string> = BaseMotionHighlightProps<T> & {
-  mode?: "children"
-  controlledItems?: false
-  itemsClassName?: string
-  children: React.ReactElement | React.ReactElement[]
-}
+type UncontrolledChildrenModeMotionHighlightProps<T extends string> =
+  BaseMotionHighlightProps<T> & {
+    mode?: "children"
+    controlledItems?: false
+    itemsClassName?: string
+    children: React.ReactElement | React.ReactElement[]
+  }
 
 type MotionHighlightProps<T extends string> = Omit<React.ComponentProps<"div">, "ref"> &
   (
@@ -185,7 +188,9 @@ function MotionHighlightComponent<T extends string>({
 
     const onScroll = () => {
       if (!activeValue) return
-      const activeEl = container.querySelector<HTMLElement>(`[data-value="${activeValue}"][data-highlight="true"]`)
+      const activeEl = container.querySelector<HTMLElement>(
+        `[data-value="${activeValue}"][data-highlight="true"]`
+      )
       if (activeEl) safeSetBounds(activeEl.getBoundingClientRect())
     }
 
@@ -200,7 +205,10 @@ function MotionHighlightComponent<T extends string>({
           <div
             ref={localRef}
             data-slot="motion-highlight-container"
-            className={cn("relative", (props as ParentModeMotionHighlightProps)?.containerClassName)}
+            className={cn(
+              "relative",
+              (props as ParentModeMotionHighlightProps)?.containerClassName
+            )}
           >
             <AnimatePresence initial={false}>
               {boundsState && (
@@ -267,7 +275,10 @@ function MotionHighlightComponent<T extends string>({
           ? render(children)
           : render(
               React.Children.map(children, (child, index) => (
-                <MotionHighlightItem key={index} className={props?.itemsClassName}>
+                <MotionHighlightItem
+                  key={index}
+                  className={props?.itemsClassName}
+                >
                   {child}
                 </MotionHighlightItem>
               ))
@@ -279,7 +290,12 @@ function MotionHighlightComponent<T extends string>({
 
 const MotionHighlight = React.forwardRef<HTMLDivElement, MotionHighlightProps<any>>(
   function MotionHighlight(props, ref) {
-    return <MotionHighlightComponent {...props} ref={ref} />
+    return (
+      <MotionHighlightComponent
+        {...props}
+        ref={ref}
+      />
+    )
   }
 ) as <T extends string>(
   props: MotionHighlightProps<T> & { ref?: React.Ref<HTMLDivElement> }
@@ -367,7 +383,8 @@ const MotionHighlightItem = ({
     if (mode !== "parent") return
     let rafId: number
     let previousBounds: Bounds | null = null
-    const shouldUpdateBounds = forceUpdateBounds === true || (contextForceUpdateBounds && forceUpdateBounds !== false)
+    const shouldUpdateBounds =
+      forceUpdateBounds === true || (contextForceUpdateBounds && forceUpdateBounds !== false)
 
     const updateBounds = () => {
       if (!localRef.current) return
@@ -477,7 +494,11 @@ const MotionHighlightItem = ({
             )}
           </AnimatePresence>
 
-          <div data-slot="motion-highlight-item" className={cn("relative z-[1]", className)} {...dataAttributes}>
+          <div
+            data-slot="motion-highlight-item"
+            className={cn("relative z-[1]", className)}
+            {...dataAttributes}
+          >
             {children}
           </div>
         </>
