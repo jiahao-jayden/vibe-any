@@ -74,37 +74,117 @@ export default {
     threeBenefits: {
       title: t({ en: "Three Key Benefits", zh: "三大核心优势" }),
       description: t({
-        en: "Discover why thousands of developers choose our platform",
-        zh: "了解为什么数千名开发者选择我们的平台",
+        en: "Discover why choose our template",
+        zh: "了解为什么选择我们的模板",
       }),
       items: [
         {
-          title: t({ en: "Lightning Fast", zh: "极速启动" }),
+          title: t({ en: "Lightning Fast Startup", zh: "极速启动" }),
           description: t({
-            en: "Get up and running in minutes with our optimized templates and infrastructure.",
-            zh: "通过优化的模板和基础设施，几分钟内即可启动运行。",
+            en: "Get up and running in minutes with optimized templates and infrastructure. Say goodbye to Next.js's snail-like speed.",
+            zh: "通过优化的模板和基础设施，几分钟内即可启动运行。告别 Next.js 的蜗牛速度。",
           }),
           icon: "Zap",
         },
         {
-          title: t({ en: "Payments Ready Out of the Box", zh: "开箱即用的支付系统" }),
+          title: t({ en: "Environment Variable Visual Configuration", zh: "环境变量可视化配置" }),
           description: t({
-            en: "Stripe built-in with subscriptions and one‑time payments. Configure your pricing table and start charging.",
-            zh: "内置 Stripe 支付，支持订阅和一次性付款。配置价格表即可开始收费。",
+            en: "Built-in visual configuration system for dynamic environment variables, eliminating tedious configuration processes.",
+            zh: "内置动态环境变量的可视化配置系统，告别繁琐的配置过程。",
           }),
           icon: "Shield",
         },
         {
           title: t({ en: "Complete SaaS Kit", zh: "完整的 SaaS 套件" }),
           description: t({
-            en: "Auth, i18n, blog, docs, newsletter, dashboard, routing and SEO are all built‑in — saving you weeks of development.",
-            zh: "认证、国际化、博客、文档、邮件订阅、仪表盘、路由和 SEO 全部内置——为你节省数周开发时间。",
+            en: "Authentication, i18n, payments, credits, AI, blog, docs, newsletter, dashboard, routing and SEO are all built-in — saving you weeks of development time.",
+            zh: "认证、国际化、支付、积分、AI、博客、文档、邮件订阅、仪表盘、路由和 SEO 全部内置——为你节省数周开发时间。",
           }),
           icon: "HeadphonesIcon",
         },
       ],
     },
     introduction: [
+      {
+        type: "image" as const,
+        title: t({ en: "Authentication System", zh: "身份认证系统" }),
+        description: t({
+          en: "Complete authentication solution with email/password login, OAuth integration (Google/GitHub), user profile management, and secure session handling",
+          zh: "完整的身份认证解决方案，支持邮箱密码登录、OAuth 集成（Google/GitHub）、用户资料管理和安全会话处理",
+        }),
+        image: "/landing/introduction/auth.webp" as const,
+        imagePosition: "left" as const,
+        features: [
+          {
+            title: t({ en: "Multiple Login Methods", zh: "多种登录方式" }),
+            description: t({
+              en: "Email/password authentication with OAuth support for Google and GitHub",
+              zh: "邮箱密码认证，支持 Google 和 GitHub OAuth 登录",
+            }),
+          },
+          {
+            title: t({ en: "User Management", zh: "用户管理" }),
+            description: t({
+              en: "Complete user profile system with role-based access control",
+              zh: "完整的用户资料系统，支持基于角色的访问控制",
+            }),
+          },
+          {
+            title: t({ en: "Session Security", zh: "会话安全" }),
+            description: t({
+              en: "Secure session management with automatic token refresh and logout",
+              zh: "安全的会话管理，支持自动令牌刷新和登出",
+            }),
+          },
+          {
+            title: t({ en: "Admin Dashboard", zh: "管理后台" }),
+            description: t({
+              en: "Built-in admin panel for user management and system monitoring",
+              zh: "内置管理面板，支持用户管理和系统监控",
+            }),
+          },
+        ],
+      },
+      {
+        type: "image" as const,
+        title: t({ en: "Payment System", zh: "支付系统" }),
+        description: t({
+          en: "Supports subscriptions and one-time payments via Stripe, with automated payment event handling and billing management",
+          zh: "支持通过 Stripe 进行订阅和一次性支付，自动处理支付事件和账单管理",
+        }),
+        image: "/home/introduction/payment.avif",
+        imagePosition: "right" as const,
+        features: [
+          {
+            title: t({ en: "Stripe Integration", zh: "Stripe 集成" }),
+            description: t({
+              en: "Official SDK support with secure event signing",
+              zh: "官方 SDK 支持，安全事件签名",
+            }),
+          },
+          {
+            title: t({ en: "Subscriptions & One-time", zh: "订阅与一次性支付" }),
+            description: t({
+              en: "Two payment models, plug-and-play",
+              zh: "两种支付模式，即插即用",
+            }),
+          },
+          {
+            title: t({ en: "Webhook Handling", zh: "Webhook 处理" }),
+            description: t({
+              en: "Automatically processes payment events like success and refunds",
+              zh: "自动处理支付成功、退款等事件",
+            }),
+          },
+          {
+            title: t({ en: "Billing & Credits", zh: "账单与积分" }),
+            description: t({
+              en: "Billing page with credit top-up and history tracking",
+              zh: "账单页面支持积分充值和历史记录追踪",
+            }),
+          },
+        ],
+      },
       {
         type: "image" as const,
         title: t({ en: "AI Capabilities", zh: "AI 能力" }),
@@ -191,46 +271,7 @@ export default {
           },
         ],
       },
-      {
-        type: "image" as const,
-        title: t({ en: "Payment System", zh: "支付系统" }),
-        description: t({
-          en: "Supports subscriptions and one-time payments via Stripe, with automated payment event handling and billing management",
-          zh: "支持通过 Stripe 进行订阅和一次性支付，自动处理支付事件和账单管理",
-        }),
-        image: "/home/introduction/payment.avif",
-        imagePosition: "left" as const,
-        features: [
-          {
-            title: t({ en: "Stripe Integration", zh: "Stripe 集成" }),
-            description: t({
-              en: "Official SDK support with secure event signing",
-              zh: "官方 SDK 支持，安全事件签名",
-            }),
-          },
-          {
-            title: t({ en: "Subscriptions & One-time", zh: "订阅与一次性支付" }),
-            description: t({
-              en: "Two payment models, plug-and-play",
-              zh: "两种支付模式，即插即用",
-            }),
-          },
-          {
-            title: t({ en: "Webhook Handling", zh: "Webhook 处理" }),
-            description: t({
-              en: "Automatically processes payment events like success and refunds",
-              zh: "自动处理支付成功、退款等事件",
-            }),
-          },
-          {
-            title: t({ en: "Billing & Credits", zh: "账单与积分" }),
-            description: t({
-              en: "Billing page with credit top-up and history tracking",
-              zh: "账单页面支持积分充值和历史记录追踪",
-            }),
-          },
-        ],
-      },
+
       {
         type: "image" as const,
         title: t({ en: "Blog & Documentation", zh: "博客与文档" }),

@@ -146,7 +146,6 @@ export function GlobalNotFoundComponent() {
                 height={120}
                 className="w-[80px] h-[80px] md:w-[120px] md:h-[120px] object-contain select-none"
                 draggable="false"
-                priority
               />
             </motion.div>
             <motion.span

@@ -16,7 +16,6 @@ import {
 import { useEffect, useState } from "react"
 import { useIntlayer, useLocale } from "react-intlayer"
 import { useTheme } from "tanstack-theme-kit"
-import logo from "@/logo.svg"
 import { LocalizedLink, type To } from "@/shared/components/locale/localized-link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"
 import {
@@ -110,7 +109,7 @@ export default function AdminSidebar() {
               <LocalizedLink to="/admin/users">
                 <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                   <img
-                    src={logo}
+                    src="/logo.svg"
                     alt="Logo"
                     className="size-5 invert dark:invert-0"
                   />
