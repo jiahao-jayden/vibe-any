@@ -56,3 +56,14 @@ export const roadmap = defineCollections({
     columns: z.array(roadmapColumnSchema).default([]),
   }),
 })
+
+export const changelog = defineCollections({
+  type: "doc",
+  dir: "content/changelog",
+  schema: frontmatterSchema.extend({
+    date: z.coerce.date(),
+    version: z.string().optional(),
+    published: z.boolean().default(true),
+    tags: z.array(z.string()).default([]),
+  }),
+})
