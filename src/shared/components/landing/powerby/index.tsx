@@ -7,15 +7,15 @@ import { cn } from "@/shared/lib/utils"
 import type { PowerByConfig } from "@/shared/types/landing"
 
 const POWER_BY_CONFIG: PowerByConfig[] = [
-  { name: "github", path: "/partners/github.svg" },
-  { name: "tailwindcss", path: "/partners/tailwindcss.svg" },
-  { name: "vercel", path: "/partners/vercel.svg" },
-  { name: "nextjs", path: "/partners/nextjs.svg" },
-  { name: "shadcn", path: "/partners/shadcn.svg" },
-  { name: "openai", path: "/partners/openai.svg" },
-  { name: "react", path: "/partners/react.svg" },
-  { name: "supabase", path: "/partners/supabase.svg" },
-  { name: "cloudflare", path: "/partners/cloudflare.svg" },
+  { name: "tanstack-start", path: "/landing/partners/tanstack.svg" },
+  { name: "github", path: "/landing/partners/github.svg" },
+  { name: "tailwindcss", path: "/landing/partners/tailwindcss.svg" },
+  { name: "vercel", path: "/landing/partners/vercel.svg" },
+  { name: "shadcn", path: "/landing/partners/shadcn.svg" },
+  { name: "openai", path: "/landing/partners/openai.svg" },
+  { name: "react", path: "/landing/partners/react.svg" },
+  { name: "supabase", path: "/landing/partners/supabase.svg" },
+  { name: "cloudflare", path: "/landing/partners/cloudflare.svg" },
 ]
 
 export default function PowerBy() {

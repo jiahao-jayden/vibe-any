@@ -60,10 +60,10 @@ export default {
     powerBy: {
       title: t({ en: "Trusted by developers worldwide", zh: "被全球开发者信任" }),
       items: [
+        "tanstack-start",
         "github",
         "tailwindcss",
         "vercel",
-        "nextjs",
         "shadcn",
         "openai",
         "react",
