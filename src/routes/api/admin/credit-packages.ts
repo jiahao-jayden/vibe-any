@@ -3,7 +3,6 @@ import { asc, eq } from "drizzle-orm"
 import { z } from "zod/v4"
 import { creditPackage, db } from "@/db"
 import { Resp } from "@/shared/lib/tools/response"
-import { adminMiddleware } from "@/shared/middleware/auth.middleware"
 
 const createSchema = z.object({
   name: z.string().min(1),
@@ -23,7 +22,6 @@ const updateSchema = createSchema.partial().extend({
 
 export const Route = createFileRoute("/api/admin/credit-packages")({
   server: {
-    middleware: [adminMiddleware],
     handlers: {
       GET: async () => {
         try {

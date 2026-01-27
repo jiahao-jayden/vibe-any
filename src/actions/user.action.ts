@@ -1,14 +1,12 @@
 import { createServerFn } from "@tanstack/react-start"
-import { getRequestHeaders } from "@tanstack/react-start/server"
 import { UserService } from "@/services/user.service"
-import { auth } from "@/shared/lib/auth/auth-server"
+import { sessionMiddleware } from "@/shared/middleware/auth.middleware"
 import type { UserInfo } from "@/shared/types/user"
 
-export const getUserInfoFn = createServerFn({ method: "GET" }).handler(
-  async (): Promise<UserInfo> => {
-    const headers = getRequestHeaders()
-    const session = await auth.api.getSession({ headers })
-    const userId = session?.user?.id
+export const getUserInfoFn = createServerFn({ method: "GET" })
+  .middleware([sessionMiddleware])
+  .handler(async ({ context }): Promise<UserInfo> => {
+    const userId = context.session?.user.id
 
     if (!userId) {
       return {
@@ -19,5 +17,4 @@ export const getUserInfoFn = createServerFn({ method: "GET" }).handler(
 
     const userService = new UserService()
     return userService.getUserInfo(userId)
-  }
-)
+  })

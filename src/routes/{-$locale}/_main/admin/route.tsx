@@ -1,13 +1,13 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router"
 import AdminSidebar from "@/shared/components/sidebar/admin-sidebar"
 import { SidebarProvider, SidebarTrigger } from "@/shared/components/ui/sidebar"
-import { adminMiddleware, authMiddleware } from "@/shared/middleware/auth.middleware"
+import { adminMiddleware, strictAuthMiddleware } from "@/shared/middleware/auth.middleware"
 
 export const Route = createFileRoute("/{-$locale}/_main/admin")({
   component: RouteComponent,
   ssr: false,
   server: {
-    middleware: [authMiddleware, adminMiddleware],
+    middleware: [strictAuthMiddleware, adminMiddleware],
   },
 })
 

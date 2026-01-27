@@ -14,6 +14,7 @@ import { Route as Char123LocaleChar125404RouteImport } from './routes/{-$locale}
 import { Route as Char123LocaleChar125SplatRouteImport } from './routes/{-$locale}/$'
 import { Route as Char123LocaleChar125DocsRouteRouteImport } from './routes/{-$locale}/docs/route'
 import { Route as Char123LocaleChar125MainRouteRouteImport } from './routes/{-$locale}/_main/route'
+import { Route as ApiAdminRouteRouteImport } from './routes/api/admin/route'
 import { Route as Char123LocaleChar125LoginIndexRouteImport } from './routes/{-$locale}/login/index'
 import { Route as Char123LocaleChar125DocsSplatRouteImport } from './routes/{-$locale}/docs/$'
 import { Route as ApiPaymentCheckoutRouteImport } from './routes/api/payment/checkout'
@@ -25,6 +26,7 @@ import { Route as ApiAdminCreditPackagesRouteImport } from './routes/api/admin/c
 import { Route as ApiAdminConfigRouteImport } from './routes/api/admin/config'
 import { Route as Char123LocaleChar125MainAdminRouteRouteImport } from './routes/{-$locale}/_main/admin/route'
 import { Route as Char123LocaleChar125MainLandingRouteRouteImport } from './routes/{-$locale}/_main/_landing/route'
+import { Route as Char123LocaleChar125MainChatIndexRouteImport } from './routes/{-$locale}/_main/chat/index'
 import { Route as Char123LocaleChar125MainAdminIndexRouteImport } from './routes/{-$locale}/_main/admin/index'
 import { Route as Char123LocaleChar125MainLandingIndexRouteImport } from './routes/{-$locale}/_main/_landing/index'
 import { Route as Char123LocaleChar125MainAdminUsersRouteImport } from './routes/{-$locale}/_main/admin/users'
@@ -67,6 +69,11 @@ const Char123LocaleChar125MainRouteRoute =
     id: '/_main',
     getParentRoute: () => Char123LocaleChar125RouteRoute,
   } as any)
+const ApiAdminRouteRoute = ApiAdminRouteRouteImport.update({
+  id: '/api/admin',
+  path: '/api/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const Char123LocaleChar125LoginIndexRoute =
   Char123LocaleChar125LoginIndexRouteImport.update({
     id: '/login/',
@@ -100,19 +107,19 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAdminUsersRoute = ApiAdminUsersRouteImport.update({
-  id: '/api/admin/users',
-  path: '/api/admin/users',
-  getParentRoute: () => rootRouteImport,
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => ApiAdminRouteRoute,
 } as any)
 const ApiAdminCreditPackagesRoute = ApiAdminCreditPackagesRouteImport.update({
-  id: '/api/admin/credit-packages',
-  path: '/api/admin/credit-packages',
-  getParentRoute: () => rootRouteImport,
+  id: '/credit-packages',
+  path: '/credit-packages',
+  getParentRoute: () => ApiAdminRouteRoute,
 } as any)
 const ApiAdminConfigRoute = ApiAdminConfigRouteImport.update({
-  id: '/api/admin/config',
-  path: '/api/admin/config',
-  getParentRoute: () => rootRouteImport,
+  id: '/config',
+  path: '/config',
+  getParentRoute: () => ApiAdminRouteRoute,
 } as any)
 const Char123LocaleChar125MainAdminRouteRoute =
   Char123LocaleChar125MainAdminRouteRouteImport.update({
@@ -123,6 +130,12 @@ const Char123LocaleChar125MainAdminRouteRoute =
 const Char123LocaleChar125MainLandingRouteRoute =
   Char123LocaleChar125MainLandingRouteRouteImport.update({
     id: '/_landing',
+    getParentRoute: () => Char123LocaleChar125MainRouteRoute,
+  } as any)
+const Char123LocaleChar125MainChatIndexRoute =
+  Char123LocaleChar125MainChatIndexRouteImport.update({
+    id: '/chat/',
+    path: '/chat/',
     getParentRoute: () => Char123LocaleChar125MainRouteRoute,
   } as any)
 const Char123LocaleChar125MainAdminIndexRoute =
@@ -206,6 +219,7 @@ const Char123LocaleChar125MainLandingBlogSlugRoute =
 
 export interface FileRoutesByFullPath {
   '/{-$locale}': typeof Char123LocaleChar125MainLandingRouteRouteWithChildren
+  '/api/admin': typeof ApiAdminRouteRouteWithChildren
   '/{-$locale}/docs': typeof Char123LocaleChar125DocsRouteRouteWithChildren
   '/{-$locale}/$': typeof Char123LocaleChar125SplatRoute
   '/{-$locale}/404': typeof Char123LocaleChar125404Route
@@ -230,11 +244,13 @@ export interface FileRoutesByFullPath {
   '/{-$locale}/admin/users': typeof Char123LocaleChar125MainAdminUsersRoute
   '/{-$locale}/': typeof Char123LocaleChar125MainLandingIndexRoute
   '/{-$locale}/admin/': typeof Char123LocaleChar125MainAdminIndexRoute
+  '/{-$locale}/chat/': typeof Char123LocaleChar125MainChatIndexRoute
   '/{-$locale}/blog/$slug': typeof Char123LocaleChar125MainLandingBlogSlugRoute
   '/{-$locale}/blog/': typeof Char123LocaleChar125MainLandingBlogIndexRoute
 }
 export interface FileRoutesByTo {
   '/{-$locale}': typeof Char123LocaleChar125MainLandingIndexRoute
+  '/api/admin': typeof ApiAdminRouteRouteWithChildren
   '/{-$locale}/docs': typeof Char123LocaleChar125DocsRouteRouteWithChildren
   '/{-$locale}/$': typeof Char123LocaleChar125SplatRoute
   '/{-$locale}/404': typeof Char123LocaleChar125404Route
@@ -249,7 +265,7 @@ export interface FileRoutesByTo {
   '/{-$locale}/login': typeof Char123LocaleChar125LoginIndexRoute
   '/api/payment/webhook/$provider': typeof ApiPaymentWebhookProviderRoute
   '/{-$locale}/changelog': typeof Char123LocaleChar125MainLandingChangelogRoute
-  '/{-$locale}/chat': typeof Char123LocaleChar125MainLandingChatRoute
+  '/{-$locale}/chat': typeof Char123LocaleChar125MainChatIndexRoute
   '/{-$locale}/roadmap': typeof Char123LocaleChar125MainLandingRoadmapRoute
   '/{-$locale}/waitlist': typeof Char123LocaleChar125MainLandingWaitlistRoute
   '/{-$locale}/admin/config': typeof Char123LocaleChar125MainAdminConfigRoute
@@ -263,6 +279,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/{-$locale}': typeof Char123LocaleChar125RouteRouteWithChildren
+  '/api/admin': typeof ApiAdminRouteRouteWithChildren
   '/{-$locale}/_main': typeof Char123LocaleChar125MainRouteRouteWithChildren
   '/{-$locale}/docs': typeof Char123LocaleChar125DocsRouteRouteWithChildren
   '/{-$locale}/$': typeof Char123LocaleChar125SplatRoute
@@ -289,6 +306,7 @@ export interface FileRoutesById {
   '/{-$locale}/_main/admin/users': typeof Char123LocaleChar125MainAdminUsersRoute
   '/{-$locale}/_main/_landing/': typeof Char123LocaleChar125MainLandingIndexRoute
   '/{-$locale}/_main/admin/': typeof Char123LocaleChar125MainAdminIndexRoute
+  '/{-$locale}/_main/chat/': typeof Char123LocaleChar125MainChatIndexRoute
   '/{-$locale}/_main/_landing/blog/$slug': typeof Char123LocaleChar125MainLandingBlogSlugRoute
   '/{-$locale}/_main/_landing/blog/': typeof Char123LocaleChar125MainLandingBlogIndexRoute
 }
@@ -296,6 +314,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/{-$locale}'
+    | '/api/admin'
     | '/{-$locale}/docs'
     | '/{-$locale}/$'
     | '/{-$locale}/404'
@@ -320,11 +339,13 @@ export interface FileRouteTypes {
     | '/{-$locale}/admin/users'
     | '/{-$locale}/'
     | '/{-$locale}/admin/'
+    | '/{-$locale}/chat/'
     | '/{-$locale}/blog/$slug'
     | '/{-$locale}/blog/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/{-$locale}'
+    | '/api/admin'
     | '/{-$locale}/docs'
     | '/{-$locale}/$'
     | '/{-$locale}/404'
@@ -352,6 +373,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/{-$locale}'
+    | '/api/admin'
     | '/{-$locale}/_main'
     | '/{-$locale}/docs'
     | '/{-$locale}/$'
@@ -378,15 +400,14 @@ export interface FileRouteTypes {
     | '/{-$locale}/_main/admin/users'
     | '/{-$locale}/_main/_landing/'
     | '/{-$locale}/_main/admin/'
+    | '/{-$locale}/_main/chat/'
     | '/{-$locale}/_main/_landing/blog/$slug'
     | '/{-$locale}/_main/_landing/blog/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   Char123LocaleChar125RouteRoute: typeof Char123LocaleChar125RouteRouteWithChildren
-  ApiAdminConfigRoute: typeof ApiAdminConfigRoute
-  ApiAdminCreditPackagesRoute: typeof ApiAdminCreditPackagesRoute
-  ApiAdminUsersRoute: typeof ApiAdminUsersRoute
+  ApiAdminRouteRoute: typeof ApiAdminRouteRouteWithChildren
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiCreditHistoryRoute: typeof ApiCreditHistoryRoute
   ApiCreditPackagesRoute: typeof ApiCreditPackagesRoute
@@ -430,6 +451,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/{-$locale}'
       preLoaderRoute: typeof Char123LocaleChar125MainRouteRouteImport
       parentRoute: typeof Char123LocaleChar125RouteRoute
+    }
+    '/api/admin': {
+      id: '/api/admin'
+      path: '/api/admin'
+      fullPath: '/api/admin'
+      preLoaderRoute: typeof ApiAdminRouteRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/{-$locale}/login/': {
       id: '/{-$locale}/login/'
@@ -475,24 +503,24 @@ declare module '@tanstack/react-router' {
     }
     '/api/admin/users': {
       id: '/api/admin/users'
-      path: '/api/admin/users'
+      path: '/users'
       fullPath: '/api/admin/users'
       preLoaderRoute: typeof ApiAdminUsersRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiAdminRouteRoute
     }
     '/api/admin/credit-packages': {
       id: '/api/admin/credit-packages'
-      path: '/api/admin/credit-packages'
+      path: '/credit-packages'
       fullPath: '/api/admin/credit-packages'
       preLoaderRoute: typeof ApiAdminCreditPackagesRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiAdminRouteRoute
     }
     '/api/admin/config': {
       id: '/api/admin/config'
-      path: '/api/admin/config'
+      path: '/config'
       fullPath: '/api/admin/config'
       preLoaderRoute: typeof ApiAdminConfigRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiAdminRouteRoute
     }
     '/{-$locale}/_main/admin': {
       id: '/{-$locale}/_main/admin'
@@ -506,6 +534,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/{-$locale}'
       preLoaderRoute: typeof Char123LocaleChar125MainLandingRouteRouteImport
+      parentRoute: typeof Char123LocaleChar125MainRouteRoute
+    }
+    '/{-$locale}/_main/chat/': {
+      id: '/{-$locale}/_main/chat/'
+      path: '/chat'
+      fullPath: '/{-$locale}/chat/'
+      preLoaderRoute: typeof Char123LocaleChar125MainChatIndexRouteImport
       parentRoute: typeof Char123LocaleChar125MainRouteRoute
     }
     '/{-$locale}/_main/admin/': {
@@ -665,6 +700,7 @@ const Char123LocaleChar125MainAdminRouteRouteWithChildren =
 interface Char123LocaleChar125MainRouteRouteChildren {
   Char123LocaleChar125MainLandingRouteRoute: typeof Char123LocaleChar125MainLandingRouteRouteWithChildren
   Char123LocaleChar125MainAdminRouteRoute: typeof Char123LocaleChar125MainAdminRouteRouteWithChildren
+  Char123LocaleChar125MainChatIndexRoute: typeof Char123LocaleChar125MainChatIndexRoute
 }
 
 const Char123LocaleChar125MainRouteRouteChildren: Char123LocaleChar125MainRouteRouteChildren =
@@ -673,6 +709,8 @@ const Char123LocaleChar125MainRouteRouteChildren: Char123LocaleChar125MainRouteR
       Char123LocaleChar125MainLandingRouteRouteWithChildren,
     Char123LocaleChar125MainAdminRouteRoute:
       Char123LocaleChar125MainAdminRouteRouteWithChildren,
+    Char123LocaleChar125MainChatIndexRoute:
+      Char123LocaleChar125MainChatIndexRoute,
   }
 
 const Char123LocaleChar125MainRouteRouteWithChildren =
@@ -718,11 +756,25 @@ const Char123LocaleChar125RouteRouteWithChildren =
     Char123LocaleChar125RouteRouteChildren,
   )
 
-const rootRouteChildren: RootRouteChildren = {
-  Char123LocaleChar125RouteRoute: Char123LocaleChar125RouteRouteWithChildren,
+interface ApiAdminRouteRouteChildren {
+  ApiAdminConfigRoute: typeof ApiAdminConfigRoute
+  ApiAdminCreditPackagesRoute: typeof ApiAdminCreditPackagesRoute
+  ApiAdminUsersRoute: typeof ApiAdminUsersRoute
+}
+
+const ApiAdminRouteRouteChildren: ApiAdminRouteRouteChildren = {
   ApiAdminConfigRoute: ApiAdminConfigRoute,
   ApiAdminCreditPackagesRoute: ApiAdminCreditPackagesRoute,
   ApiAdminUsersRoute: ApiAdminUsersRoute,
+}
+
+const ApiAdminRouteRouteWithChildren = ApiAdminRouteRoute._addFileChildren(
+  ApiAdminRouteRouteChildren,
+)
+
+const rootRouteChildren: RootRouteChildren = {
+  Char123LocaleChar125RouteRoute: Char123LocaleChar125RouteRouteWithChildren,
+  ApiAdminRouteRoute: ApiAdminRouteRouteWithChildren,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiCreditHistoryRoute: ApiCreditHistoryRoute,
   ApiCreditPackagesRoute: ApiCreditPackagesRoute,

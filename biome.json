@@ -14,11 +14,12 @@
       "**/vite.config.ts",
       "!**/src/routeTree.gen.ts",
       "!**/src/styles.css",
-      "!src/components/ui",
-      "!src/components/magicui",
-      "!src/components/motion-primitives",
-      "!src/components/animate-ui",
-      "!src/components/ai-elements"
+      "!src/config/style/*.css",
+      "!src/shared/components/ui",
+      "!src/shared/components/magicui",
+      "!src/shared/components/motion-primitives",
+      "!src/shared/components/animate-ui",
+      "!src/shared/components/ai-elements"
     ]
   },
   "formatter": {

@@ -2,9 +2,11 @@ import { createFileRoute } from "@tanstack/react-router"
 import { CreditService } from "@/services/credits.service"
 import { auth } from "@/shared/lib/auth/auth-server"
 import { Resp } from "@/shared/lib/tools/response"
+import { noStrictAuthMiddleware } from "@/shared/middleware/auth.middleware"
 
 export const Route = createFileRoute("/api/credit/history")({
   server: {
+    middleware: [noStrictAuthMiddleware],
     handlers: {
       GET: async ({ request }: { request: Request }) => {
         try {
