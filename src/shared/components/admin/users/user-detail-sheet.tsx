@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Ban, Coins, Mail, Plus, Shield, Trash2, User, UserCheck } from "lucide-react"
 import { useState } from "react"
 import { useIntlayer } from "react-intlayer"
-import { RoleAssignDialog } from "@/shared/components/admin/role-assign-dialog"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,6 +21,7 @@ import { Skeleton } from "@/shared/components/ui/skeleton"
 import { useGlobalContext } from "@/shared/context/global.context"
 import { http } from "@/shared/lib/tools/http-client"
 import type { AdminUserDetail, AdminUserRole } from "@/shared/types/admin"
+import { RoleAssignDialog } from "./role-assign-dialog"
 
 type UserDetailSheetProps = {
   userId: string | null

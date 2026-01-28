@@ -5,7 +5,7 @@ import { useState } from "react"
 import { useIntlayer } from "react-intlayer"
 import { toast } from "sonner"
 import { configGroups } from "@/config/schema"
-import { PageHeader } from "@/shared/components/admin/page-header"
+import { PageHeader } from "@/shared/components/admin"
 import { Button } from "@/shared/components/ui/button"
 import {
   Card,

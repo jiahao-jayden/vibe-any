@@ -12,17 +12,18 @@ import {
 import { Ban, Coins, Crown, Eye, ShieldCheck, UserRoundX, Users } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useIntlayer } from "react-intlayer"
-import { DataTableColumnHeader } from "@/shared/components/admin/data-table-column-header"
-import { DataTableViewOptions } from "@/shared/components/admin/data-table-view-options"
-import { PageHeader } from "@/shared/components/admin/page-header"
-import { TableContainer, TableScrollArea } from "@/shared/components/admin/table-container"
-import { TablePagination } from "@/shared/components/admin/table-pagination"
-import { UserDetailSheet } from "@/shared/components/admin/user-detail-sheet"
 import {
+  DataTableColumnHeader,
+  DataTableViewOptions,
   DEFAULT_FILTERS,
+  PageHeader,
+  TableContainer,
+  TablePagination,
+  TableScrollArea,
+  UserDetailSheet,
   type UserFilters,
   UserFiltersBar,
-} from "@/shared/components/admin/user-filters"
+} from "@/shared/components/admin"
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"
 import { Badge } from "@/shared/components/ui/badge"
 import { Button } from "@/shared/components/ui/button"

@@ -4,7 +4,7 @@ import { Coins, Package, Pencil, Plus, Trash2 } from "lucide-react"
 import { useId, useState } from "react"
 import { useIntlayer } from "react-intlayer"
 import { toast } from "sonner"
-import { PageHeader } from "@/shared/components/admin/page-header"
+import { PageHeader } from "@/shared/components/admin"
 import {
   AlertDialog,
   AlertDialogAction,
