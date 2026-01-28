@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { desc } from "drizzle-orm"
 import { db, user } from "@/db"
+import { Resp } from "@/shared/lib/tools/response"
 
 export const Route = createFileRoute("/api/admin/users")({
   server: {
@@ -20,10 +21,10 @@ export const Route = createFileRoute("/api/admin/users")({
             .orderBy(desc(user.createdAt))
             .limit(50)
 
-          return Response.json(users)
+          return Resp.success(users)
         } catch (error) {
           console.error("Failed to fetch users:", error)
-          return Response.json({ error: "Failed to fetch users" }, { status: 500 })
+          return Resp.error("Failed to fetch users")
         }
       },
     },

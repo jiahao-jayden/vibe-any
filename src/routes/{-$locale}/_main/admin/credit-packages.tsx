@@ -76,7 +76,8 @@ function CreditPackagesPage() {
 
   const { data: packages, isLoading } = useQuery({
     queryKey: ["admin", "credit-packages"],
-    queryFn: async () => (await http<CreditPackage[]>("/api/admin/credit-packages")) ?? [],
+    queryFn: () => http<CreditPackage[]>("/api/admin/credit-packages"),
+    initialData: [],
   })
 
   const createMutation = useMutation({

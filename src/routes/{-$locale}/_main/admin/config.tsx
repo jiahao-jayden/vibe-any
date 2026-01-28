@@ -59,7 +59,8 @@ function ConfigPage() {
 
   const { data: configs, isLoading } = useQuery({
     queryKey: ["admin", "configs"],
-    queryFn: async () => (await http<ConfigMeta[]>("/api/admin/config")) ?? [],
+    queryFn: () => http<ConfigMeta[]>("/api/admin/config"),
+    initialData: [],
   })
 
   const mutation = useMutation({

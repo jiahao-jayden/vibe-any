@@ -14,10 +14,12 @@ export class HttpError extends Error {
   }
 }
 
-type HttpOptions = FetchOptions & {
-  requireAuth?: boolean
+type BaseHttpOptions = FetchOptions & {
   silent?: boolean
 }
+
+type HttpOptionsWithAuth = BaseHttpOptions & { requireAuth: true }
+type HttpOptionsWithoutAuth = BaseHttpOptions & { requireAuth?: false }
 
 function emitAndThrow(code: number, message: string, error?: ErrorCode, silent?: boolean): never {
   if (!silent) {
@@ -38,7 +40,12 @@ const baseFetch = ofetch.create({
   },
 })
 
-export async function http<T>(url: string, options?: HttpOptions): Promise<T | null> {
+export async function http<T>(url: string, options: HttpOptionsWithAuth): Promise<T | null>
+export async function http<T>(url: string, options?: HttpOptionsWithoutAuth): Promise<T>
+export async function http<T>(
+  url: string,
+  options?: BaseHttpOptions & { requireAuth?: boolean }
+): Promise<T | null> {
   const { requireAuth, silent, ...fetchOptions } = options ?? {}
 
   if (requireAuth) {
@@ -56,4 +63,4 @@ export async function http<T>(url: string, options?: HttpOptions): Promise<T | n
   }
 }
 
-export type { HttpOptions }
+export type HttpOptions = HttpOptionsWithAuth | HttpOptionsWithoutAuth

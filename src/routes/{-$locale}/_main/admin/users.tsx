@@ -26,9 +26,10 @@ function UsersPage() {
 
   const { data: users, isLoading } = useQuery({
     queryKey: ["admin", "users"],
-    queryFn: async () => (await http<User[]>("/api/admin/users")) ?? [],
+    queryFn: () => http<User[]>("/api/admin/users"),
+    initialData: [],
   })
-
+  console.log(users, "user")
   return (
     <>
       <PageHeader
