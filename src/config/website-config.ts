@@ -1,5 +1,7 @@
 import type { WebsiteConfig } from "@/shared/types/config"
 
+const currency = import.meta.env.VITE_CURRENCY || "USD"
+
 export const websiteConfig: WebsiteConfig = {
   blog: {
     initialLoadSize: 12,
@@ -26,13 +28,13 @@ export const websiteConfig: WebsiteConfig = {
         {
           priceId: import.meta.env.VITE_STRIPE_PRO_MONTHLY_PRICE_ID!,
           amount: 990,
-          currency: "USD",
+          currency,
           interval: "month",
         },
         {
           priceId: import.meta.env.VITE_STRIPE_PRO_YEARLY_PRICE_ID!,
           amount: 9900,
-          currency: "USD",
+          currency,
           interval: "year",
         },
       ],
@@ -48,7 +50,7 @@ export const websiteConfig: WebsiteConfig = {
         {
           priceId: import.meta.env.VITE_STRIPE_LIFETIME_PRICE_ID!,
           amount: 19900,
-          currency: "USD",
+          currency,
         },
       ],
       display: {

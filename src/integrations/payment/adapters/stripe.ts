@@ -1,4 +1,5 @@
 import Stripe from "stripe"
+import { CURRENCY } from "@/config/payment-config"
 import type { PaymentProvider, PaymentStatus, SubscriptionStatus } from "@/shared/types/payment"
 import type {
   AdapterCapabilities,
@@ -258,7 +259,7 @@ export class StripeAdapter implements PaymentAdapter {
       providerPaymentId: (session.payment_intent as string) || session.id,
       providerCustomerId: session.customer as string,
       amount: session.amount_total || 0,
-      currency: session.currency || "usd",
+      currency: session.currency || CURRENCY.toLowerCase(),
       status: this.mapPaymentStatus(session.payment_status),
       cycleType: session.mode === "subscription" ? "create" : undefined,
       orderId: session.metadata?.orderId,

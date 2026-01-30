@@ -3,6 +3,12 @@ import { websiteConfig } from "@/config/website-config"
 import type { PlanPrice, PlanWithPrice } from "@/shared/types/payment"
 
 /**
+ * System currency (ISO 4217 code)
+ * Configured via VITE_CURRENCY environment variable, defaults to "USD"
+ */
+export const CURRENCY = import.meta.env.VITE_CURRENCY || "USD"
+
+/**
  * Get all plans from local configuration
  *
  * This returns raw plan data without translations.

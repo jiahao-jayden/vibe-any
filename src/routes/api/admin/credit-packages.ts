@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { asc, eq } from "drizzle-orm"
 import { z } from "zod/v4"
+import { CURRENCY } from "@/config/payment-config"
 import { creditPackage, db } from "@/db"
 import { Resp } from "@/shared/lib/tools/response"
 
@@ -8,9 +9,8 @@ const createSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
   creditAmount: z.number().int().positive(),
-  expireDays: z.number().int().positive().optional(),
+  expireDays: z.number().int().positive().nullable().optional(),
   priceAmount: z.number().int().positive(),
-  currency: z.string().default("USD"),
   stripePriceId: z.string().min(1),
   sortOrder: z.number().int().default(0),
   isActive: z.boolean().default(true),
@@ -50,7 +50,7 @@ export const Route = createFileRoute("/api/admin/credit-packages")({
               creditAmount: data.creditAmount,
               expireDays: data.expireDays,
               priceAmount: data.priceAmount,
-              currency: data.currency,
+              currency: CURRENCY,
               stripePriceId: data.stripePriceId,
               sortOrder: data.sortOrder,
               isActive: data.isActive,
@@ -74,7 +74,7 @@ export const Route = createFileRoute("/api/admin/credit-packages")({
 
           const [updated] = await db
             .update(creditPackage)
-            .set(data)
+            .set({ ...data, currency: CURRENCY })
             .where(eq(creditPackage.id, id))
             .returning()
 

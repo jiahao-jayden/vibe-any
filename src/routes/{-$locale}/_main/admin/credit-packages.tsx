@@ -4,6 +4,7 @@ import { Coins, Package, Pencil, Plus, Trash2 } from "lucide-react"
 import { useId, useState } from "react"
 import { useIntlayer } from "react-intlayer"
 import { toast } from "sonner"
+import { CURRENCY } from "@/config/payment-config"
 import { PageHeader } from "@/shared/components/admin"
 import {
   AlertDialog,
@@ -45,7 +46,6 @@ type FormData = {
   creditAmount: number
   expireDays: number | null
   priceAmount: number
-  currency: string
   stripePriceId: string
   sortOrder: number
   isActive: boolean
@@ -57,7 +57,6 @@ const defaultFormData: FormData = {
   creditAmount: 100,
   expireDays: 30,
   priceAmount: 990,
-  currency: "USD",
   stripePriceId: "",
   sortOrder: 0,
   isActive: true,
@@ -133,7 +132,6 @@ function CreditPackagesPage() {
       creditAmount: pkg.creditAmount,
       expireDays: pkg.expireDays,
       priceAmount: pkg.priceAmount,
-      currency: pkg.currency,
       stripePriceId: pkg.stripePriceId,
       sortOrder: pkg.sortOrder,
       isActive: pkg.isActive,
@@ -405,38 +403,21 @@ function CreditPackagesPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor={`${formId}-priceAmount`}>
-                  {content.creditPackages.form.priceAmount}
-                </Label>
-                <Input
-                  id={`${formId}-priceAmount`}
-                  type="number"
-                  value={formData.priceAmount}
-                  onChange={(e) =>
-                    setFormData({ ...formData, priceAmount: Number(e.target.value) })
-                  }
-                  min={1}
-                  required
-                />
-                <p className="text-xs text-muted-foreground">
-                  {content.creditPackages.form.priceAmountHint}
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor={`${formId}-currency`}>{content.creditPackages.form.currency}</Label>
-                <Input
-                  id={`${formId}-currency`}
-                  value={formData.currency}
-                  onChange={(e) =>
-                    setFormData({ ...formData, currency: e.target.value.toUpperCase() })
-                  }
-                  maxLength={3}
-                  required
-                />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor={`${formId}-priceAmount`}>
+                {content.creditPackages.form.priceAmount} ({CURRENCY})
+              </Label>
+              <Input
+                id={`${formId}-priceAmount`}
+                type="number"
+                value={formData.priceAmount}
+                onChange={(e) => setFormData({ ...formData, priceAmount: Number(e.target.value) })}
+                min={1}
+                required
+              />
+              <p className="text-xs text-muted-foreground">
+                {content.creditPackages.form.priceAmountHint}
+              </p>
             </div>
 
             <div className="space-y-2">
