@@ -1,3 +1,5 @@
+"use client"
+
 import { useEffect, useState } from "react"
 
 const AVATAR_CACHE_PREFIX = "avatar_cache_"
@@ -8,6 +10,10 @@ type CachedData = {
   timestamp: number
 }
 
+function isClient(): boolean {
+  return typeof window !== "undefined"
+}
+
 function getCacheKey(url: string): string {
   const hash = url.split("").reduce((acc, char) => {
     return ((acc << 5) - acc + char.charCodeAt(0)) | 0
@@ -16,6 +22,7 @@ function getCacheKey(url: string): string {
 }
 
 function getFromCache(url: string): string | null {
+  if (!isClient()) return null
   try {
     const key = getCacheKey(url)
     const cached = localStorage.getItem(key)
@@ -33,6 +40,7 @@ function getFromCache(url: string): string | null {
 }
 
 function saveToCache(url: string, base64: string): void {
+  if (!isClient()) return
   try {
     const key = getCacheKey(url)
     const data: CachedData = {

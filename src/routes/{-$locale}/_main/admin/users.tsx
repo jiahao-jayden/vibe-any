@@ -1,42 +1,22 @@
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
-import {
-  type ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  type PaginationState,
-  type SortingState,
-  useReactTable,
-  type VisibilityState,
-} from "@tanstack/react-table"
-import { Ban, Coins, Crown, Eye, ShieldCheck, UserRoundX, Users } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import type { ColumnDef } from "@tanstack/react-table"
+import { Ban, Coins, Crown, Eye, Mail, ShieldCheck, User, UserRoundX, Users } from "lucide-react"
+import { parseAsInteger, parseAsString, useQueryState } from "nuqs"
+import { useMemo, useState } from "react"
 import { useIntlayer } from "react-intlayer"
+import { PageHeader, UserDetailSheet } from "@/shared/components/admin"
 import {
+  DataTable,
   DataTableColumnHeader,
-  DataTableViewOptions,
-  DEFAULT_FILTERS,
-  PageHeader,
-  TableContainer,
-  TablePagination,
-  TableScrollArea,
-  UserDetailSheet,
-  type UserFilters,
-  UserFiltersBar,
-} from "@/shared/components/admin"
+  DataTableSkeleton,
+  DataTableToolbar,
+} from "@/shared/components/common/data-table"
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"
 import { Badge } from "@/shared/components/ui/badge"
 import { Button } from "@/shared/components/ui/button"
-import { Skeleton } from "@/shared/components/ui/skeleton"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/shared/components/ui/table"
 import { useGlobalContext } from "@/shared/context/global.context"
+import { useDataTable } from "@/shared/hooks/use-data-table"
 import { http } from "@/shared/lib/tools/http-client"
 import { cn } from "@/shared/lib/utils"
 import type { AdminUserListItem, PaginatedResponse } from "@/shared/types/admin"
@@ -78,75 +58,43 @@ function UsersPage() {
 
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
   const [sheetOpen, setSheetOpen] = useState(false)
-  const [filters, setFilters] = useState<UserFilters>(DEFAULT_FILTERS)
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  })
-  const [sorting, setSorting] = useState<SortingState>([
-    { id: filters.sortBy, desc: filters.sortOrder === "desc" },
-  ])
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+
+  const [page] = useQueryState("page", parseAsInteger.withDefault(1))
+  const [perPage] = useQueryState("perPage", parseAsInteger.withDefault(10))
+  const [sortBy] = useQueryState("sortBy", parseAsString.withDefault("createdAt"))
+  const [sortOrder] = useQueryState("sortOrder", parseAsString.withDefault("desc"))
+  const [search] = useQueryState("name", parseAsString)
+  const [status] = useQueryState("status", parseAsString)
 
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ["admin", "users", pagination.pageIndex, pagination.pageSize, filters],
+    queryKey: ["admin", "users", page, perPage, sortBy, sortOrder, search, status],
     queryFn: () => {
       const params = new URLSearchParams({
-        page: String(pagination.pageIndex + 1),
-        pageSize: String(pagination.pageSize),
-        sortBy: filters.sortBy,
-        sortOrder: filters.sortOrder,
+        page: String(page),
+        pageSize: String(perPage),
+        sortBy,
+        sortOrder,
       })
-      if (filters.search) params.set("search", filters.search)
-      if (filters.banned && filters.banned !== "all") params.set("banned", filters.banned)
-      if (filters.subscription && filters.subscription !== "all")
-        params.set("subscription", filters.subscription)
-      if (filters.role && filters.role !== "all") params.set("role", filters.role)
+
+      if (search) {
+        params.set("search", search)
+      }
+
+      if (status) {
+        if (status === "banned") {
+          params.set("banned", "true")
+        } else if (status === "verified" || status === "unverified") {
+          params.set("emailVerified", status === "verified" ? "true" : "false")
+        }
+      }
+
       return http<PaginatedResponse<AdminUserListItem>>(`/api/admin/users?${params}`)
     },
   })
 
-  const handleFiltersChange = (newFilters: UserFilters) => {
-    setFilters(newFilters)
-    setPagination((prev) => ({ ...prev, pageIndex: 0 }))
-    setSorting([{ id: newFilters.sortBy, desc: newFilters.sortOrder === "desc" }])
-  }
-
-  useEffect(() => {
-    if (sorting.length > 0) {
-      const { id, desc } = sorting[0]
-      if (id !== filters.sortBy || (desc ? "desc" : "asc") !== filters.sortOrder) {
-        setFilters((prev) => ({
-          ...prev,
-          sortBy: id,
-          sortOrder: desc ? "desc" : "asc",
-        }))
-        setPagination((prev) => ({ ...prev, pageIndex: 0 }))
-      }
-    }
-  }, [sorting, filters.sortBy, filters.sortOrder])
-
   const users = data?.items ?? []
   const totalRows = data?.pagination.total ?? 0
-
-  const stats = useMemo(() => {
-    return {
-      total: totalRows,
-      verified: users.filter((u) => u.emailVerified).length,
-      banned: users.filter((u) => u.banned).length,
-      subscribed: users.filter((u) => u.subscription).length,
-    }
-  }, [users, totalRows])
-
-  const handleViewUser = (userId: string) => {
-    setSelectedUserId(userId)
-    setSheetOpen(true)
-  }
-
-  const handleSheetClose = () => {
-    setSheetOpen(false)
-    setSelectedUserId(null)
-  }
+  const pageCount = data?.pagination.totalPages ?? -1
 
   const columns: ColumnDef<AdminUserListItem>[] = useMemo(
     () => [
@@ -154,6 +102,8 @@ function UsersPage() {
         id: "avatar",
         header: "",
         size: 60,
+        enableSorting: false,
+        enableHiding: false,
         cell: ({ row }) => (
           <Avatar className="size-9">
             <AvatarImage
@@ -167,30 +117,47 @@ function UsersPage() {
         ),
       },
       {
+        id: "name",
         accessorKey: "name",
         header: ({ column }) => (
           <DataTableColumnHeader
             column={column}
-            title={content.users.table.name.value}
+            label={content.users.table.name.value}
           />
         ),
         cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
+        meta: {
+          label: content.users.table.name.value,
+          placeholder: "Search users...",
+          variant: "text" as const,
+          icon: User,
+        },
+        enableColumnFilter: true,
         enableHiding: true,
       },
       {
+        id: "email",
         accessorKey: "email",
         header: ({ column }) => (
           <DataTableColumnHeader
             column={column}
-            title={content.users.table.email.value}
+            label={content.users.table.email.value}
           />
         ),
         cell: ({ row }) => <span className="text-muted-foreground">{row.original.email}</span>,
+        meta: {
+          label: content.users.table.email.value,
+          placeholder: "Search email...",
+          variant: "text" as const,
+          icon: Mail,
+        },
+        enableColumnFilter: true,
         enableHiding: true,
       },
       {
         id: "roles",
         header: () => content.users.roles,
+        enableSorting: false,
         cell: ({ row }) => (
           <div className="flex flex-wrap gap-1">
             {row.original.roles.length > 0 ? (
@@ -222,6 +189,7 @@ function UsersPage() {
       {
         id: "subscription",
         header: () => content.users.subscription,
+        enableSorting: false,
         cell: ({ row }) =>
           row.original.subscription ? (
             <Badge className="bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 border-0 text-xs">
@@ -242,6 +210,7 @@ function UsersPage() {
             {
               id: "credits",
               header: () => content.users.credits,
+              enableSorting: false,
               cell: ({ row }: { row: { original: AdminUserListItem } }) => (
                 <div className="flex items-center gap-1 tabular-nums text-muted-foreground">
                   <Coins className="size-3.5" />
@@ -254,7 +223,10 @@ function UsersPage() {
         : []),
       {
         id: "status",
+        accessorFn: (row) =>
+          row.banned ? "banned" : row.emailVerified ? "verified" : "unverified",
         header: () => content.users.table.status,
+        enableSorting: false,
         cell: ({ row }) =>
           row.original.banned ? (
             <Badge variant="destructive">{content.users.banned}</Badge>
@@ -263,14 +235,25 @@ function UsersPage() {
               {row.original.emailVerified ? content.users.verified : content.users.unverified}
             </Badge>
           ),
+        meta: {
+          label: content.users.table.status.value,
+          variant: "select" as const,
+          options: [
+            { label: content.users.verified.value, value: "verified" },
+            { label: content.users.unverified.value, value: "unverified" },
+            { label: content.users.banned.value, value: "banned" },
+          ],
+        },
+        enableColumnFilter: true,
         enableHiding: true,
       },
       {
+        id: "createdAt",
         accessorKey: "createdAt",
         header: ({ column }) => (
           <DataTableColumnHeader
             column={column}
-            title={content.users.table.createdAt.value}
+            label={content.users.table.createdAt.value}
           />
         ),
         cell: ({ row }) => (
@@ -284,6 +267,8 @@ function UsersPage() {
         id: "actions",
         header: "",
         size: 50,
+        enableSorting: false,
+        enableHiding: false,
         cell: ({ row }) => (
           <Button
             variant="ghost"
@@ -303,44 +288,46 @@ function UsersPage() {
     [content, creditEnabled]
   )
 
-  const table = useReactTable({
+  const { table } = useDataTable({
     data: users,
     columns,
-    getCoreRowModel: getCoreRowModel(),
-    manualPagination: true,
-    manualSorting: true,
-    pageCount: data?.pagination.totalPages ?? -1,
-    state: {
-      pagination,
-      sorting,
-      columnVisibility,
+    pageCount,
+    initialState: {
+      sorting: [{ id: "createdAt", desc: true }],
+      pagination: { pageIndex: 0, pageSize: 10 },
     },
-    onPaginationChange: setPagination,
-    onSortingChange: setSorting,
-    onColumnVisibilityChange: setColumnVisibility,
+    getRowId: (row) => row.id,
   })
 
-  const columnLabels = useMemo(
-    () => ({
-      name: content.users.table.name.value,
-      email: content.users.table.email.value,
-      roles: content.users.roles.value,
-      subscription: content.users.subscription.value,
-      credits: content.users.credits.value,
-      status: content.users.table.status.value,
-      createdAt: content.users.table.createdAt.value,
-    }),
-    [content]
-  )
+  const stats = useMemo(() => {
+    return {
+      total: totalRows,
+      verified: users.filter((u) => u.emailVerified).length,
+      banned: users.filter((u) => u.banned).length,
+      subscribed: users.filter((u) => u.subscription).length,
+    }
+  }, [users, totalRows])
+
+  const handleViewUser = (userId: string) => {
+    setSelectedUserId(userId)
+    setSheetOpen(true)
+  }
+
+  const handleSheetClose = () => {
+    setSheetOpen(false)
+    setSelectedUserId(null)
+  }
+
+  const hasFilters = search || status
 
   return (
-    <div className="flex flex-col h-full min-h-0">
+    <div className="flex flex-col gap-4 h-full min-h-0">
       <PageHeader
         title={content.users.title.value}
         description={content.users.description.value}
       />
 
-      <div className="-mx-4 px-4 flex gap-2 overflow-x-auto pb-2 mb-4 no-scrollbar sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:pb-0 sm:mb-6 lg:grid-cols-4 shrink-0">
+      <div className="-mx-4 px-4 flex gap-2 overflow-x-auto pb-2 no-scrollbar sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:pb-0 lg:grid-cols-4 shrink-0">
         <StatCard
           icon={Users}
           label={content.users.stats.total.value}
@@ -367,143 +354,25 @@ function UsersPage() {
         />
       </div>
 
-      <div className="mb-4 shrink-0 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <UserFiltersBar
-          filters={filters}
-          onChange={handleFiltersChange}
+      {isLoading ? (
+        <DataTableSkeleton
+          columnCount={creditEnabled ? 9 : 8}
+          rowCount={perPage}
+          filterCount={2}
         />
-        <DataTableViewOptions
-          table={table}
-          columnLabels={columnLabels}
-        />
-      </div>
-
-      <TableContainer>
-        {isLoading ? (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="hover:bg-transparent">
-                  <TableHead className="w-16 pl-4" />
-                  <TableHead>{content.users.table.name}</TableHead>
-                  <TableHead>{content.users.table.email}</TableHead>
-                  <TableHead>{content.users.roles}</TableHead>
-                  <TableHead>{content.users.subscription}</TableHead>
-                  {creditEnabled && <TableHead>{content.users.credits}</TableHead>}
-                  <TableHead>{content.users.table.status}</TableHead>
-                  <TableHead>{content.users.table.createdAt}</TableHead>
-                  <TableHead className="w-12 pr-4" />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {Array.from({ length: pagination.pageSize }).map((_, i) => (
-                  <TableRow key={i}>
-                    <TableCell className="pl-4">
-                      <Skeleton className="size-9 rounded-full" />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-4 w-24" />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-4 w-40" />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-5 w-16 rounded-full" />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-5 w-16 rounded-full" />
-                    </TableCell>
-                    {creditEnabled && (
-                      <TableCell>
-                        <Skeleton className="h-4 w-12" />
-                      </TableCell>
-                    )}
-                    <TableCell>
-                      <Skeleton className="h-5 w-16 rounded-full" />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-4 w-20" />
-                    </TableCell>
-                    <TableCell className="pr-4">
-                      <Skeleton className="size-8" />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+      ) : users.length === 0 && !hasFilters ? (
+        <div className="flex flex-1 flex-col items-center justify-center py-16 rounded-md border">
+          <div className="flex size-14 items-center justify-center rounded-2xl bg-muted">
+            <UserRoundX className="size-7 text-muted-foreground" />
           </div>
-        ) : users.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16">
-            <div className="flex size-14 items-center justify-center rounded-2xl bg-muted">
-              <UserRoundX className="size-7 text-muted-foreground" />
-            </div>
-            <h3 className="mt-5 text-base font-medium">{content.users.empty}</h3>
-            <p className="mt-1.5 text-sm text-muted-foreground">{content.users.emptyDesc}</p>
-          </div>
-        ) : (
-          <>
-            <TableScrollArea>
-              <Table className="min-w-175">
-                <TableHeader>
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow
-                      key={headerGroup.id}
-                      className="hover:bg-transparent"
-                    >
-                      {headerGroup.headers.map((header, index) => (
-                        <TableHead
-                          key={header.id}
-                          className={
-                            index === 0
-                              ? "pl-4"
-                              : index === headerGroup.headers.length - 1
-                                ? "pr-4"
-                                : ""
-                          }
-                        >
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(header.column.columnDef.header, header.getContext())}
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableHeader>
-                <TableBody>
-                  {table.getRowModel().rows.map((row) => (
-                    <TableRow
-                      key={row.id}
-                      className="cursor-pointer"
-                      onClick={() => handleViewUser(row.original.id)}
-                    >
-                      {row.getVisibleCells().map((cell, index) => (
-                        <TableCell
-                          key={cell.id}
-                          className={
-                            index === 0
-                              ? "pl-4"
-                              : index === row.getVisibleCells().length - 1
-                                ? "pr-4"
-                                : ""
-                          }
-                        >
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableScrollArea>
-
-            <TablePagination
-              table={table}
-              totalRows={totalRows}
-              rowsPerPageLabel={content.users.pagination?.rowsPerPage?.value ?? "Rows per page"}
-            />
-          </>
-        )}
-      </TableContainer>
+          <h3 className="mt-5 text-base font-medium">{content.users.empty}</h3>
+          <p className="mt-1.5 text-sm text-muted-foreground">{content.users.emptyDesc}</p>
+        </div>
+      ) : (
+        <DataTable table={table}>
+          <DataTableToolbar table={table} />
+        </DataTable>
+      )}
 
       <UserDetailSheet
         userId={selectedUserId}

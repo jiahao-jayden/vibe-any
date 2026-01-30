@@ -21,6 +21,7 @@
   "registries": {
     "@tailark": "https://tailark.com/r/{name}.json",
     "@magicui": "https://magicui.design/r/{name}.json",
-    "@ai-elements": "https://ai-sdk.dev/elements/api/registry/{name}.json"
+    "@ai-elements": "https://ai-sdk.dev/elements/api/registry/{name}.json",
+    "@diceui": "https://diceui.com/r/{name}.json"
   }
 }

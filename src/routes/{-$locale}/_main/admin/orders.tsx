@@ -1,49 +1,26 @@
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
-import {
-  type ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  type PaginationState,
-  useReactTable,
-  type VisibilityState,
-} from "@tanstack/react-table"
+import type { ColumnDef } from "@tanstack/react-table"
 import {
   CheckCircle2Icon,
   ClockIcon,
   PackageIcon,
   ReceiptIcon,
   RefreshCwIcon,
-  SearchIcon,
   XCircleIcon,
 } from "lucide-react"
-import { useMemo, useState } from "react"
+import { parseAsInteger, parseAsString, useQueryState } from "nuqs"
+import { useMemo } from "react"
 import { useIntlayer } from "react-intlayer"
+import { PageHeader } from "@/shared/components/admin"
 import {
-  DataTableViewOptions,
-  PageHeader,
-  TableContainer,
-  TablePagination,
-  TableScrollArea,
-} from "@/shared/components/admin"
+  DataTable,
+  DataTableColumnHeader,
+  DataTableSkeleton,
+  DataTableToolbar,
+} from "@/shared/components/common/data-table"
 import { Badge } from "@/shared/components/ui/badge"
-import { Input } from "@/shared/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/components/ui/select"
-import { Skeleton } from "@/shared/components/ui/skeleton"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/shared/components/ui/table"
+import { useDataTable } from "@/shared/hooks/use-data-table"
 import { http } from "@/shared/lib/tools/http-client"
 import { cn } from "@/shared/lib/utils"
 import type { AdminOrderListItem, PaginatedResponse } from "@/shared/types/admin"
@@ -51,21 +28,6 @@ import type { AdminOrderListItem, PaginatedResponse } from "@/shared/types/admin
 export const Route = createFileRoute("/{-$locale}/_main/admin/orders")({
   component: OrdersPage,
 })
-
-type OrderStatus = "all" | "pending" | "paid" | "canceled" | "expired" | "refunded"
-type OrderType = "all" | "subscription" | "credit_package"
-
-interface OrderFilters {
-  search: string
-  status: OrderStatus
-  orderType: OrderType
-}
-
-const DEFAULT_FILTERS: OrderFilters = {
-  search: "",
-  status: "all",
-  orderType: "all",
-}
 
 function StatCard({
   icon: Icon,
@@ -141,41 +103,29 @@ function OrdersPage() {
   const content = useIntlayer("admin")
   const locale = typeof window !== "undefined" ? document.documentElement.lang : "en"
 
-  const [filters, setFilters] = useState<OrderFilters>(DEFAULT_FILTERS)
-  const [searchInput, setSearchInput] = useState("")
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  })
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  const [page] = useQueryState("page", parseAsInteger.withDefault(1))
+  const [perPage] = useQueryState("perPage", parseAsInteger.withDefault(10))
+  const [search] = useQueryState("search", parseAsString)
+  const [status] = useQueryState("status", parseAsString)
+  const [orderType] = useQueryState("orderType", parseAsString)
 
   const { data, isLoading } = useQuery({
-    queryKey: ["admin", "orders", pagination.pageIndex, pagination.pageSize, filters],
+    queryKey: ["admin", "orders", page, perPage, search, status, orderType],
     queryFn: () => {
       const params = new URLSearchParams({
-        page: String(pagination.pageIndex + 1),
-        pageSize: String(pagination.pageSize),
+        page: String(page),
+        pageSize: String(perPage),
       })
-      if (filters.search) params.set("search", filters.search)
-      if (filters.status !== "all") params.set("status", filters.status)
-      if (filters.orderType !== "all") params.set("orderType", filters.orderType)
+      if (search) params.set("search", search)
+      if (status && status !== "all") params.set("status", status)
+      if (orderType && orderType !== "all") params.set("orderType", orderType)
       return http<PaginatedResponse<AdminOrderListItem>>(`/api/admin/orders?${params}`)
     },
   })
 
-  const handleSearch = () => {
-    setFilters((prev) => ({ ...prev, search: searchInput }))
-    setPagination((prev) => ({ ...prev, pageIndex: 0 }))
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleSearch()
-    }
-  }
-
   const orders = data?.items ?? []
   const totalRows = data?.pagination.total ?? 0
+  const pageCount = data?.pagination.totalPages ?? -1
 
   const stats = useMemo(() => {
     return {
@@ -189,11 +139,23 @@ function OrdersPage() {
   const columns: ColumnDef<AdminOrderListItem>[] = useMemo(
     () => [
       {
+        id: "id",
         accessorKey: "id",
-        header: () => content.orders.table.orderId,
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            label={content.orders.table.orderId.value}
+          />
+        ),
         cell: ({ row }) => (
           <span className="font-mono text-xs text-muted-foreground">{row.original.id}</span>
         ),
+        meta: {
+          label: content.orders.table.orderId.value,
+          placeholder: "Search order ID...",
+          variant: "text" as const,
+        },
+        enableColumnFilter: true,
         enableHiding: true,
       },
       {
@@ -205,9 +167,11 @@ function OrdersPage() {
             <p className="text-xs text-muted-foreground truncate">{row.original.userEmail}</p>
           </div>
         ),
+        enableSorting: false,
         enableHiding: true,
       },
       {
+        id: "productName",
         accessorKey: "productName",
         header: () => content.orders.table.product,
         cell: ({ row }) => (
@@ -221,11 +185,18 @@ function OrdersPage() {
             <span className="truncate">{row.original.productName || "-"}</span>
           </div>
         ),
+        enableSorting: false,
         enableHiding: true,
       },
       {
+        id: "amount",
         accessorKey: "amount",
-        header: () => content.orders.table.amount,
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            label={content.orders.table.amount.value}
+          />
+        ),
         cell: ({ row }) => (
           <span className="font-medium tabular-nums">
             {formatCurrency(row.original.amount, row.original.currency)}
@@ -234,14 +205,55 @@ function OrdersPage() {
         enableHiding: true,
       },
       {
+        id: "status",
         accessorKey: "status",
         header: () => content.orders.table.status,
         cell: ({ row }) => getStatusBadge(row.original.status),
+        meta: {
+          label: content.orders.table.status.value,
+          variant: "select" as const,
+          options: [
+            { label: content.orders.filters.pending.value, value: "pending" },
+            { label: content.orders.filters.paid.value, value: "paid" },
+            { label: content.orders.filters.canceled.value, value: "canceled" },
+            { label: content.orders.filters.expired.value, value: "expired" },
+            { label: content.orders.filters.refunded.value, value: "refunded" },
+          ],
+        },
+        enableColumnFilter: true,
+        enableSorting: false,
         enableHiding: true,
       },
       {
+        id: "orderType",
+        accessorKey: "orderType",
+        header: () => content.orders.filters.allTypes,
+        cell: ({ row }) => (
+          <Badge variant="outline">
+            {row.original.orderType === "subscription" ? "Subscription" : "Credit"}
+          </Badge>
+        ),
+        meta: {
+          label: content.orders.filters.allTypes.value,
+          variant: "select" as const,
+          options: [
+            { label: content.orders.filters.subscription.value, value: "subscription" },
+            { label: content.orders.filters.creditPackage.value, value: "credit_package" },
+          ],
+        },
+        enableColumnFilter: true,
+        enableSorting: false,
+        enableHiding: true,
+      },
+      {
+        id: "createdAt",
         accessorKey: "createdAt",
-        header: () => content.orders.table.createdAt,
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            label={content.orders.table.createdAt.value}
+          />
+        ),
         cell: ({ row }) => (
           <span className="tabular-nums text-muted-foreground text-sm">
             {formatDate(row.original.createdAt, locale)}
@@ -250,8 +262,14 @@ function OrdersPage() {
         enableHiding: true,
       },
       {
+        id: "paidAt",
         accessorKey: "paidAt",
-        header: () => content.orders.table.paidAt,
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            label={content.orders.table.paidAt.value}
+          />
+        ),
         cell: ({ row }) => (
           <span className="tabular-nums text-muted-foreground text-sm">
             {formatDate(row.original.paidAt, locale)}
@@ -263,41 +281,27 @@ function OrdersPage() {
     [content, locale]
   )
 
-  const table = useReactTable({
+  const { table } = useDataTable({
     data: orders,
     columns,
-    getCoreRowModel: getCoreRowModel(),
-    manualPagination: true,
-    pageCount: data?.pagination.totalPages ?? -1,
-    state: {
-      pagination,
-      columnVisibility,
+    pageCount,
+    initialState: {
+      sorting: [{ id: "createdAt", desc: true }],
+      pagination: { pageIndex: 0, pageSize: 10 },
     },
-    onPaginationChange: setPagination,
-    onColumnVisibilityChange: setColumnVisibility,
+    getRowId: (row) => row.id,
   })
 
-  const columnLabels = useMemo(
-    () => ({
-      id: content.orders.table.orderId.value,
-      user: content.orders.table.user.value,
-      productName: content.orders.table.product.value,
-      amount: content.orders.table.amount.value,
-      status: content.orders.table.status.value,
-      createdAt: content.orders.table.createdAt.value,
-      paidAt: content.orders.table.paidAt.value,
-    }),
-    [content]
-  )
+  const hasFilters = search || (status && status !== "all") || (orderType && orderType !== "all")
 
   return (
-    <div className="flex flex-col h-full min-h-0">
+    <div className="flex flex-col gap-4 h-full min-h-0">
       <PageHeader
         title={content.orders.title.value}
         description={content.orders.description.value}
       />
 
-      <div className="-mx-4 px-4 flex gap-2 overflow-x-auto pb-2 mb-4 no-scrollbar sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:pb-0 sm:mb-6 lg:grid-cols-4 shrink-0">
+      <div className="-mx-4 px-4 flex gap-2 overflow-x-auto pb-2 no-scrollbar sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:pb-0 lg:grid-cols-4 shrink-0">
         <StatCard
           icon={ReceiptIcon}
           label={content.orders.stats.total.value}
@@ -324,175 +328,25 @@ function OrdersPage() {
         />
       </div>
 
-      <div className="mb-4 shrink-0 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="relative">
-            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-            <Input
-              placeholder={content.orders.searchPlaceholder.value}
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="pl-9 w-48"
-            />
-          </div>
-          <Select
-            value={filters.status}
-            onValueChange={(value: OrderStatus) => {
-              setFilters((prev) => ({ ...prev, status: value }))
-              setPagination((prev) => ({ ...prev, pageIndex: 0 }))
-            }}
-          >
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{content.orders.filters.allStatus}</SelectItem>
-              <SelectItem value="pending">{content.orders.filters.pending}</SelectItem>
-              <SelectItem value="paid">{content.orders.filters.paid}</SelectItem>
-              <SelectItem value="canceled">{content.orders.filters.canceled}</SelectItem>
-              <SelectItem value="expired">{content.orders.filters.expired}</SelectItem>
-              <SelectItem value="refunded">{content.orders.filters.refunded}</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select
-            value={filters.orderType}
-            onValueChange={(value: OrderType) => {
-              setFilters((prev) => ({ ...prev, orderType: value }))
-              setPagination((prev) => ({ ...prev, pageIndex: 0 }))
-            }}
-          >
-            <SelectTrigger className="w-36">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{content.orders.filters.allTypes}</SelectItem>
-              <SelectItem value="subscription">{content.orders.filters.subscription}</SelectItem>
-              <SelectItem value="credit_package">{content.orders.filters.creditPackage}</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <DataTableViewOptions
-          table={table}
-          columnLabels={columnLabels}
+      {isLoading ? (
+        <DataTableSkeleton
+          columnCount={8}
+          rowCount={perPage}
+          filterCount={3}
         />
-      </div>
-
-      <TableContainer>
-        {isLoading ? (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="hover:bg-transparent">
-                  <TableHead>{content.orders.table.orderId}</TableHead>
-                  <TableHead>{content.orders.table.user}</TableHead>
-                  <TableHead>{content.orders.table.product}</TableHead>
-                  <TableHead>{content.orders.table.amount}</TableHead>
-                  <TableHead>{content.orders.table.status}</TableHead>
-                  <TableHead>{content.orders.table.createdAt}</TableHead>
-                  <TableHead>{content.orders.table.paidAt}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {Array.from({ length: pagination.pageSize }).map((_, i) => (
-                  <TableRow key={i}>
-                    <TableCell>
-                      <Skeleton className="h-4 w-32" />
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <Skeleton className="h-4 w-24" />
-                        <Skeleton className="h-3 w-32" />
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-5 w-40" />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-4 w-16" />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-5 w-20 rounded-full" />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-4 w-28" />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-4 w-28" />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+      ) : orders.length === 0 && !hasFilters ? (
+        <div className="flex flex-1 flex-col items-center justify-center py-16 rounded-md border">
+          <div className="flex size-14 items-center justify-center rounded-2xl bg-muted">
+            <PackageIcon className="size-7 text-muted-foreground" />
           </div>
-        ) : orders.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16">
-            <div className="flex size-14 items-center justify-center rounded-2xl bg-muted">
-              <PackageIcon className="size-7 text-muted-foreground" />
-            </div>
-            <h3 className="mt-5 text-base font-medium">{content.orders.empty}</h3>
-            <p className="mt-1.5 text-sm text-muted-foreground">{content.orders.emptyDesc}</p>
-          </div>
-        ) : (
-          <>
-            <TableScrollArea>
-              <Table className="min-w-200">
-                <TableHeader>
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow
-                      key={headerGroup.id}
-                      className="hover:bg-transparent"
-                    >
-                      {headerGroup.headers.map((header, index) => (
-                        <TableHead
-                          key={header.id}
-                          className={
-                            index === 0
-                              ? "pl-4"
-                              : index === headerGroup.headers.length - 1
-                                ? "pr-4"
-                                : ""
-                          }
-                        >
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(header.column.columnDef.header, header.getContext())}
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableHeader>
-                <TableBody>
-                  {table.getRowModel().rows.map((row) => (
-                    <TableRow key={row.id}>
-                      {row.getVisibleCells().map((cell, index) => (
-                        <TableCell
-                          key={cell.id}
-                          className={
-                            index === 0
-                              ? "pl-4"
-                              : index === row.getVisibleCells().length - 1
-                                ? "pr-4"
-                                : ""
-                          }
-                        >
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableScrollArea>
-
-            <TablePagination
-              table={table}
-              totalRows={totalRows}
-              rowsPerPageLabel={content.orders.pagination?.rowsPerPage?.value ?? "Rows per page"}
-            />
-          </>
-        )}
-      </TableContainer>
+          <h3 className="mt-5 text-base font-medium">{content.orders.empty}</h3>
+          <p className="mt-1.5 text-sm text-muted-foreground">{content.orders.emptyDesc}</p>
+        </div>
+      ) : (
+        <DataTable table={table}>
+          <DataTableToolbar table={table} />
+        </DataTable>
+      )}
     </div>
   )
 }

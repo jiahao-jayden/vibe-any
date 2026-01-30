@@ -74,12 +74,6 @@ export default function AdminSidebar() {
       match: "/admin/orders",
     },
     {
-      title: String(content.sidebar.products.value),
-      url: "/admin/products",
-      icon: Package,
-      match: "/admin/products",
-    },
-    {
       title: String(content.sidebar.creditPackages.value),
       url: "/admin/credit-packages",
       icon: Coins,

@@ -33,7 +33,6 @@ import { Route as Char123LocaleChar125MainChatIndexRouteImport } from './routes/
 import { Route as Char123LocaleChar125MainAdminIndexRouteImport } from './routes/{-$locale}/_main/admin/index'
 import { Route as Char123LocaleChar125MainLandingIndexRouteImport } from './routes/{-$locale}/_main/_landing/index'
 import { Route as Char123LocaleChar125MainAdminUsersRouteImport } from './routes/{-$locale}/_main/admin/users'
-import { Route as Char123LocaleChar125MainAdminProductsRouteImport } from './routes/{-$locale}/_main/admin/products'
 import { Route as Char123LocaleChar125MainAdminOrdersRouteImport } from './routes/{-$locale}/_main/admin/orders'
 import { Route as Char123LocaleChar125MainAdminCreditPackagesRouteImport } from './routes/{-$locale}/_main/admin/credit-packages'
 import { Route as Char123LocaleChar125MainAdminConfigRouteImport } from './routes/{-$locale}/_main/admin/config'
@@ -178,12 +177,6 @@ const Char123LocaleChar125MainAdminUsersRoute =
     path: '/users',
     getParentRoute: () => Char123LocaleChar125MainAdminRouteRoute,
   } as any)
-const Char123LocaleChar125MainAdminProductsRoute =
-  Char123LocaleChar125MainAdminProductsRouteImport.update({
-    id: '/products',
-    path: '/products',
-    getParentRoute: () => Char123LocaleChar125MainAdminRouteRoute,
-  } as any)
 const Char123LocaleChar125MainAdminOrdersRoute =
   Char123LocaleChar125MainAdminOrdersRouteImport.update({
     id: '/orders',
@@ -288,7 +281,6 @@ export interface FileRoutesByFullPath {
   '/{-$locale}/admin/config': typeof Char123LocaleChar125MainAdminConfigRoute
   '/{-$locale}/admin/credit-packages': typeof Char123LocaleChar125MainAdminCreditPackagesRoute
   '/{-$locale}/admin/orders': typeof Char123LocaleChar125MainAdminOrdersRoute
-  '/{-$locale}/admin/products': typeof Char123LocaleChar125MainAdminProductsRoute
   '/{-$locale}/admin/users': typeof Char123LocaleChar125MainAdminUsersRoute
   '/{-$locale}/': typeof Char123LocaleChar125MainLandingIndexRoute
   '/{-$locale}/admin/': typeof Char123LocaleChar125MainAdminIndexRoute
@@ -325,7 +317,6 @@ export interface FileRoutesByTo {
   '/{-$locale}/admin/config': typeof Char123LocaleChar125MainAdminConfigRoute
   '/{-$locale}/admin/credit-packages': typeof Char123LocaleChar125MainAdminCreditPackagesRoute
   '/{-$locale}/admin/orders': typeof Char123LocaleChar125MainAdminOrdersRoute
-  '/{-$locale}/admin/products': typeof Char123LocaleChar125MainAdminProductsRoute
   '/{-$locale}/admin/users': typeof Char123LocaleChar125MainAdminUsersRoute
   '/{-$locale}/admin': typeof Char123LocaleChar125MainAdminIndexRoute
   '/api/admin/users/$id/ban': typeof ApiAdminUsersIdBanRoute
@@ -364,7 +355,6 @@ export interface FileRoutesById {
   '/{-$locale}/_main/admin/config': typeof Char123LocaleChar125MainAdminConfigRoute
   '/{-$locale}/_main/admin/credit-packages': typeof Char123LocaleChar125MainAdminCreditPackagesRoute
   '/{-$locale}/_main/admin/orders': typeof Char123LocaleChar125MainAdminOrdersRoute
-  '/{-$locale}/_main/admin/products': typeof Char123LocaleChar125MainAdminProductsRoute
   '/{-$locale}/_main/admin/users': typeof Char123LocaleChar125MainAdminUsersRoute
   '/{-$locale}/_main/_landing/': typeof Char123LocaleChar125MainLandingIndexRoute
   '/{-$locale}/_main/admin/': typeof Char123LocaleChar125MainAdminIndexRoute
@@ -404,7 +394,6 @@ export interface FileRouteTypes {
     | '/{-$locale}/admin/config'
     | '/{-$locale}/admin/credit-packages'
     | '/{-$locale}/admin/orders'
-    | '/{-$locale}/admin/products'
     | '/{-$locale}/admin/users'
     | '/{-$locale}/'
     | '/{-$locale}/admin/'
@@ -441,7 +430,6 @@ export interface FileRouteTypes {
     | '/{-$locale}/admin/config'
     | '/{-$locale}/admin/credit-packages'
     | '/{-$locale}/admin/orders'
-    | '/{-$locale}/admin/products'
     | '/{-$locale}/admin/users'
     | '/{-$locale}/admin'
     | '/api/admin/users/$id/ban'
@@ -479,7 +467,6 @@ export interface FileRouteTypes {
     | '/{-$locale}/_main/admin/config'
     | '/{-$locale}/_main/admin/credit-packages'
     | '/{-$locale}/_main/admin/orders'
-    | '/{-$locale}/_main/admin/products'
     | '/{-$locale}/_main/admin/users'
     | '/{-$locale}/_main/_landing/'
     | '/{-$locale}/_main/admin/'
@@ -671,13 +658,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char123LocaleChar125MainAdminUsersRouteImport
       parentRoute: typeof Char123LocaleChar125MainAdminRouteRoute
     }
-    '/{-$locale}/_main/admin/products': {
-      id: '/{-$locale}/_main/admin/products'
-      path: '/products'
-      fullPath: '/{-$locale}/admin/products'
-      preLoaderRoute: typeof Char123LocaleChar125MainAdminProductsRouteImport
-      parentRoute: typeof Char123LocaleChar125MainAdminRouteRoute
-    }
     '/{-$locale}/_main/admin/orders': {
       id: '/{-$locale}/_main/admin/orders'
       path: '/orders'
@@ -809,7 +789,6 @@ interface Char123LocaleChar125MainAdminRouteRouteChildren {
   Char123LocaleChar125MainAdminConfigRoute: typeof Char123LocaleChar125MainAdminConfigRoute
   Char123LocaleChar125MainAdminCreditPackagesRoute: typeof Char123LocaleChar125MainAdminCreditPackagesRoute
   Char123LocaleChar125MainAdminOrdersRoute: typeof Char123LocaleChar125MainAdminOrdersRoute
-  Char123LocaleChar125MainAdminProductsRoute: typeof Char123LocaleChar125MainAdminProductsRoute
   Char123LocaleChar125MainAdminUsersRoute: typeof Char123LocaleChar125MainAdminUsersRoute
   Char123LocaleChar125MainAdminIndexRoute: typeof Char123LocaleChar125MainAdminIndexRoute
 }
@@ -822,8 +801,6 @@ const Char123LocaleChar125MainAdminRouteRouteChildren: Char123LocaleChar125MainA
       Char123LocaleChar125MainAdminCreditPackagesRoute,
     Char123LocaleChar125MainAdminOrdersRoute:
       Char123LocaleChar125MainAdminOrdersRoute,
-    Char123LocaleChar125MainAdminProductsRoute:
-      Char123LocaleChar125MainAdminProductsRoute,
     Char123LocaleChar125MainAdminUsersRoute:
       Char123LocaleChar125MainAdminUsersRoute,
     Char123LocaleChar125MainAdminIndexRoute:
