@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as Char123LocaleChar125RouteRouteImport } from './routes/{-$locale}/route'
 import { Route as Char123LocaleChar125404RouteImport } from './routes/{-$locale}/404'
@@ -51,6 +52,11 @@ import { Route as Char123LocaleChar125MainLandingBlogSlugRouteImport } from './r
 import { Route as ApiAdminUsersIdRolesRouteImport } from './routes/api/admin/users/$id/roles'
 import { Route as ApiAdminUsersIdBanRouteImport } from './routes/api/admin/users/$id/ban'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
   id: '/robots.txt',
   path: '/robots.txt',
@@ -283,6 +289,7 @@ const ApiAdminUsersIdBanRoute = ApiAdminUsersIdBanRouteImport.update({
 export interface FileRoutesByFullPath {
   '/{-$locale}': typeof Char123LocaleChar125MainLandingRouteRouteWithChildren
   '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/admin': typeof ApiAdminRouteRouteWithChildren
   '/{-$locale}/docs': typeof Char123LocaleChar125DocsRouteRouteWithChildren
   '/{-$locale}/$': typeof Char123LocaleChar125SplatRoute
@@ -324,6 +331,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/{-$locale}': typeof Char123LocaleChar125MainLandingIndexRoute
   '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/admin': typeof ApiAdminRouteRouteWithChildren
   '/{-$locale}/docs': typeof Char123LocaleChar125DocsRouteRouteWithChildren
   '/{-$locale}/$': typeof Char123LocaleChar125SplatRoute
@@ -363,6 +371,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/{-$locale}': typeof Char123LocaleChar125RouteRouteWithChildren
   '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/admin': typeof ApiAdminRouteRouteWithChildren
   '/{-$locale}/_main': typeof Char123LocaleChar125MainRouteRouteWithChildren
   '/{-$locale}/docs': typeof Char123LocaleChar125DocsRouteRouteWithChildren
@@ -408,6 +417,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/{-$locale}'
     | '/robots.txt'
+    | '/sitemap.xml'
     | '/api/admin'
     | '/{-$locale}/docs'
     | '/{-$locale}/$'
@@ -449,6 +459,7 @@ export interface FileRouteTypes {
   to:
     | '/{-$locale}'
     | '/robots.txt'
+    | '/sitemap.xml'
     | '/api/admin'
     | '/{-$locale}/docs'
     | '/{-$locale}/$'
@@ -487,6 +498,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/{-$locale}'
     | '/robots.txt'
+    | '/sitemap.xml'
     | '/api/admin'
     | '/{-$locale}/_main'
     | '/{-$locale}/docs'
@@ -531,6 +543,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   Char123LocaleChar125RouteRoute: typeof Char123LocaleChar125RouteRouteWithChildren
   RobotsDottxtRoute: typeof RobotsDottxtRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiAdminRouteRoute: typeof ApiAdminRouteRouteWithChildren
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiCreditHistoryRoute: typeof ApiCreditHistoryRoute
@@ -543,6 +556,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/robots.txt': {
       id: '/robots.txt'
       path: '/robots.txt'
@@ -1006,6 +1026,7 @@ const ApiAdminRouteRouteWithChildren = ApiAdminRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   Char123LocaleChar125RouteRoute: Char123LocaleChar125RouteRouteWithChildren,
   RobotsDottxtRoute: RobotsDottxtRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiAdminRouteRoute: ApiAdminRouteRouteWithChildren,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiCreditHistoryRoute: ApiCreditHistoryRoute,

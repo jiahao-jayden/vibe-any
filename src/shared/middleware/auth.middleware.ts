@@ -17,9 +17,14 @@ export const sessionMiddleware = createMiddleware().server(async ({ next }) => {
   if (!isAuthConfigured || !auth) {
     return await next({ context: { session: null } })
   }
-  const headers = getRequestHeaders()
-  const session = await auth.api.getSession({ headers })
-  return await next({ context: { session } })
+  try {
+    const headers = getRequestHeaders()
+    const session = await auth.api.getSession({ headers })
+    return await next({ context: { session } })
+  } catch (error) {
+    console.error("[sessionMiddleware] Failed to get session:", error)
+    return await next({ context: { session: null } })
+  }
 })
 
 /**

@@ -42,12 +42,10 @@ const config = defineConfig({
     tailwindcss(),
     tanstackStart({
       prerender: {
-        enabled: true,
-        crawlLinks: true,
+        enabled: false,
       },
       sitemap: {
-        enabled: true,
-        host: process.env.VITE_APP_URL,
+        enabled: false,
       },
     }),
     viteReact(),
