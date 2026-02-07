@@ -10,9 +10,9 @@
   内置身份认证、数据库、落地页、博客、文档、国际化、管理后台等功能，开箱即用，分钟级部署。
 </p>
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/jiahao-jayden/vibe-any" alt="License" /></a>
-  <a href="https://github.com/jiahao-jayden/vibe-any/stargazers"><img src="https://img.shields.io/github/stars/jiahao-jayden/vibe-any" alt="Stars" /></a>
-  <a href="https://github.com/jiahao-jayden/vibe-any/issues"><img src="https://img.shields.io/github/issues/jiahao-jayden/vibe-any" alt="Issues" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/jiahao-jayden/vibe-any-tanstack" alt="License" /></a>
+  <a href="https://github.com/jiahao-jayden/vibe-any-tanstack/stargazers"><img src="https://img.shields.io/github/stars/jiahao-jayden/vibe-any-tanstack" alt="Stars" /></a>
+  <a href="https://github.com/jiahao-jayden/vibe-any-tanstack/issues"><img src="https://img.shields.io/github/issues/jiahao-jayden/vibe-any-tanstack" alt="Issues" /></a>
 </p>
 <p align="center">
   <a href="https://youtu.be/0DqfKBenvkQ">
@@ -69,7 +69,7 @@
 ### 1. 克隆并安装
 
 ```bash
-git clone https://github.com/jiahao-jayden/vibe-any.git
+git clone https://github.com/jiahao-jayden/vibe-any-tanstack.git
 cd vibe-any
 pnpm install
 ```
