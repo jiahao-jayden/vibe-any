@@ -15,7 +15,14 @@
   <a href="https://github.com/jiahao-jayden/vibe-any/issues"><img src="https://img.shields.io/github/issues/jiahao-jayden/vibe-any" alt="Issues" /></a>
 </p>
 <p align="center">
-  <img src="https://placehold.co/800x450?text=截图即将更新" alt="VibeAny Screenshot" width="800" />
+  <a href="https://youtu.be/0DqfKBenvkQ">
+    <img src="https://img.shields.io/badge/▶_观看演示-black?style=for-the-badge" alt="Watch Demo" />
+  </a>
+</p>
+<p align="center">
+  <a href="https://youtu.be/0DqfKBenvkQ">
+    <img src="./public/image.png" alt="VibeAny Landing Page" width="800" />
+  </a>
 </p>
 
 ## 功能特性
