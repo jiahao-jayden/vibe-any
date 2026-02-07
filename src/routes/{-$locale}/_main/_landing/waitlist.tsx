@@ -85,7 +85,7 @@ function WaitlistPage() {
       setStatus("success")
     } catch {
       setStatus("error")
-      setErrorMessage(content.invalidEmail.value)
+      setErrorMessage(content.submitError.value)
     }
   }
 

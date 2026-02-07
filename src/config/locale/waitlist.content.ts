@@ -44,6 +44,10 @@ export default {
       en: "Please enter a valid email address",
       zh: "请输入有效的邮箱地址",
     }),
+    submitError: t({
+      en: "Something went wrong, please try again later",
+      zh: "提交失败，请稍后重试",
+    }),
     success: {
       title: t({
         en: "You're on the list!",
