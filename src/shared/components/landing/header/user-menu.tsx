@@ -38,7 +38,6 @@ export function UserMenu() {
   const creditEnabled = config?.public_credit_enable ?? false
   const [isOpenUserDashboard, setIsOpenUserDashboard] = useState(false)
   const [defaultPanel, setDefaultPanel] = useState<string | undefined>()
-  console.log("isAuthEnabled", isAuthEnabled)
   if (!isAuthEnabled) {
     return null
   }
