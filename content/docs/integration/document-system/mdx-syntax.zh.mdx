@@ -9,7 +9,7 @@ description: Fumadocs MDX 扩展语法参考，包含提示框、标签页、卡
 
 支持 `type` 属性设置类型，`title` 属性设置标题。
 
-<Tabs items={["代码", "效果"]}>
+<Tabs items={["效果", "代码"]}>
 <Tab value="代码">
 
 ```mdx
@@ -61,7 +61,7 @@ Fumadocs 基于 [Shiki](https://shiki.style/) 提供了多种代码块增强功�
 
 在代码块语言后添加 `title="文件名"` 显示标题栏。
 
-<Tabs items={["代码", "效果"]}>
+<Tabs items={["效果", "代码"]}>
 <Tab value="代码">
 
 ````text
@@ -88,7 +88,7 @@ export const config = {
 
 在行尾添加 `// [!code highlight]` 高亮该行。
 
-<Tabs items={["代码", "效果"]}>
+<Tabs items={["效果", "代码"]}>
 <Tab value="代码">
 
 ````text
@@ -115,7 +115,7 @@ const c = 3
 
 在代码块首行添加 `// [!code word:关键词]`，高亮所有匹配的词。
 
-<Tabs items={["代码", "效果"]}>
+<Tabs items={["效果", "代码"]}>
 <Tab value="代码">
 
 ````text
@@ -146,7 +146,7 @@ export default config
 
 使用 `// [!code ++]` 和 `// [!code --]` 标记新增和删除行。
 
-<Tabs items={["代码", "效果"]}>
+<Tabs items={["效果", "代码"]}>
 <Tab value="代码">
 
 ````text
@@ -175,7 +175,7 @@ export default {
 
 连续代码块添加 `tab` 属性，自动合并为标签页组。
 
-<Tabs items={["代码", "效果"]}>
+<Tabs items={["效果", "代码"]}>
 <Tab value="代码">
 
 ````text
@@ -214,7 +214,7 @@ yarn add fumadocs-ui
 
 `Tabs` 和 `Tab` 组件用于创建通用标签页，不限于代码块，可包含任意内容。
 
-<Tabs items={["代码", "效果"]}>
+<Tabs items={["效果", "代码"]}>
 <Tab value="代码">
 
 ```mdx
@@ -259,7 +259,7 @@ Vue 使用模板语法编写组件。
 
 `Cards` 和 `Card` 用于创建卡片链接集合，支持 `href`、`icon` 和 `title` 属性。
 
-<Tabs items={["代码", "效果"]}>
+<Tabs items={["效果", "代码"]}>
 <Tab value="代码">
 
 ```mdx
@@ -298,7 +298,7 @@ Vue 使用模板语法编写组件。
 
 使用 `Steps` 和 `Step` 组件创建有序步骤引导。
 
-<Tabs items={["代码", "效果"]}>
+<Tabs items={["效果", "代码"]}>
 <Tab value="代码">
 
 ```mdx
@@ -381,7 +381,7 @@ import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 使用 `Accordions` 和 `Accordion` 组件创建可折叠内容面板。
 
-<Tabs items={["代码", "效果"]}>
+<Tabs items={["效果", "代码"]}>
 <Tab value="代码">
 
 ```mdx
@@ -423,7 +423,7 @@ import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
 
 使用 `Files`、`Folder`、`File` 组件展示文件目录结构。
 
-<Tabs items={["代码", "效果"]}>
+<Tabs items={["效果", "代码"]}>
 <Tab value="代码">
 
 ```mdx
@@ -469,7 +469,7 @@ import { File, Folder, Files } from 'fumadocs-ui/components/files';
 
 使用 `TypeTable` 组件展示 API 属性文档，适合记录组件 Props。
 
-<Tabs items={["代码", "效果"]}>
+<Tabs items={["效果", "代码"]}>
 <Tab value="代码">
 
 ```mdx
@@ -521,6 +521,43 @@ import { TypeTable } from 'fumadocs-ui/components/type-table';
 
 </Tab>
 </Tabs>
+
+## Mermaid 图表
+
+使用 `<Mermaid>` 组件渲染 [Mermaid](https://mermaid.js.org/) 图表，将图表代码作为 children 以模板字符串形式传入。
+
+<Tabs items={["效果", "代码"]}>
+<Tab value="代码">
+
+```mdx
+<Mermaid>{`flowchart LR
+  A[开始] --> B{判断}
+  B -->|是| C[执行]
+  B -->|否| D[结束]
+  C --> D`}</Mermaid>
+```
+
+</Tab>
+<Tab value="效果">
+
+<Mermaid>{`flowchart LR
+  A[开始] --> B{判断}
+  B -->|是| C[执行]
+  B -->|否| D[结束]
+  C --> D`}</Mermaid>
+
+</Tab>
+</Tabs>
+
+| 特性 | 说明 |
+| --- | --- |
+| 主题 | 根据站点主题自动切换亮色/暗色 |
+| 放大 | 悬停显示放大按钮，点击在全屏弹窗中查看 |
+| 错误处理 | 渲染失败时显示错误信息和原始代码 |
+
+<Callout type="info">
+  `Mermaid` 已在默认 MDX 组件中注册，无需手动导入。支持所有标准 Mermaid 图表类型（flowchart、sequence、class、state、ER 等）。
+</Callout>
 
 ## 图片缩放
 

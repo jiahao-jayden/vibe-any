@@ -9,7 +9,7 @@ This page summarizes the MDX extended syntax provided by Fumadocs (excluding sta
 
 Supports `type` attribute for type and `title` attribute for title.
 
-<Tabs items={["Code", "Result"]}>
+<Tabs items={["Result", "Code"]}>
 <Tab value="Code">
 
 ```mdx
@@ -61,7 +61,7 @@ Fumadocs provides multiple code block enhancements based on [Shiki](https://shik
 
 Add `title="filename"` after the code block language to display a title bar.
 
-<Tabs items={["Code", "Result"]}>
+<Tabs items={["Result", "Code"]}>
 <Tab value="Code">
 
 ````text
@@ -88,7 +88,7 @@ export const config = {
 
 Add `// [!code highlight]` at the end of a line to highlight it.
 
-<Tabs items={["Code", "Result"]}>
+<Tabs items={["Result", "Code"]}>
 <Tab value="Code">
 
 ````text
@@ -115,7 +115,7 @@ const c = 3
 
 Add `// [!code word:keyword]` on the first line of a code block to highlight all matching words.
 
-<Tabs items={["Code", "Result"]}>
+<Tabs items={["Result", "Code"]}>
 <Tab value="Code">
 
 ````text
@@ -146,7 +146,7 @@ export default config
 
 Use `// [!code ++]` and `// [!code --]` to mark added and removed lines.
 
-<Tabs items={["Code", "Result"]}>
+<Tabs items={["Result", "Code"]}>
 <Tab value="Code">
 
 ````text
@@ -175,7 +175,7 @@ export default {
 
 Add the `tab` attribute to consecutive code blocks to automatically merge them into a tab group.
 
-<Tabs items={["Code", "Result"]}>
+<Tabs items={["Result", "Code"]}>
 <Tab value="Code">
 
 ````text
@@ -214,7 +214,7 @@ yarn add fumadocs-ui
 
 `Tabs` and `Tab` components create general-purpose tabs, not limited to code blocks — they can contain any content.
 
-<Tabs items={["Code", "Result"]}>
+<Tabs items={["Result", "Code"]}>
 <Tab value="Code">
 
 ```mdx
@@ -259,7 +259,7 @@ Vue uses template syntax to write components.
 
 `Cards` and `Card` create card link collections, supporting `href`, `icon`, and `title` attributes.
 
-<Tabs items={["Code", "Result"]}>
+<Tabs items={["Result", "Code"]}>
 <Tab value="Code">
 
 ```mdx
@@ -298,7 +298,7 @@ Vue uses template syntax to write components.
 
 Use `Steps` and `Step` components to create ordered step guides.
 
-<Tabs items={["Code", "Result"]}>
+<Tabs items={["Result", "Code"]}>
 <Tab value="Code">
 
 ```mdx
@@ -381,7 +381,7 @@ Step content...
 
 Use `Accordions` and `Accordion` components to create collapsible content panels.
 
-<Tabs items={["Code", "Result"]}>
+<Tabs items={["Result", "Code"]}>
 <Tab value="Code">
 
 ```mdx
@@ -423,7 +423,7 @@ import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
 
 Use `Files`, `Folder`, `File` components to display file directory structures.
 
-<Tabs items={["Code", "Result"]}>
+<Tabs items={["Result", "Code"]}>
 <Tab value="Code">
 
 ```mdx
@@ -469,7 +469,7 @@ import { File, Folder, Files } from 'fumadocs-ui/components/files';
 
 Use the `TypeTable` component to display API property documentation, ideal for documenting component Props.
 
-<Tabs items={["Code", "Result"]}>
+<Tabs items={["Result", "Code"]}>
 <Tab value="Code">
 
 ```mdx
@@ -521,6 +521,43 @@ import { TypeTable } from 'fumadocs-ui/components/type-table';
 
 </Tab>
 </Tabs>
+
+## Mermaid Diagrams
+
+Use the `<Mermaid>` component to render [Mermaid](https://mermaid.js.org/) diagrams. Pass the diagram code as children wrapped in a template literal.
+
+<Tabs items={["Result", "Code"]}>
+<Tab value="Code">
+
+```mdx
+<Mermaid>{`flowchart LR
+  A[Start] --> B{Decision}
+  B -->|Yes| C[Action]
+  B -->|No| D[End]
+  C --> D`}</Mermaid>
+```
+
+</Tab>
+<Tab value="Result">
+
+<Mermaid>{`flowchart LR
+  A[Start] --> B{Decision}
+  B -->|Yes| C[Action]
+  B -->|No| D[End]
+  C --> D`}</Mermaid>
+
+</Tab>
+</Tabs>
+
+| Feature | Description |
+| --- | --- |
+| Theme | Auto-switches between light/dark based on site theme |
+| Expand | Hover to reveal expand button, click to view in full-screen dialog |
+| Error | Displays error message and raw code on render failure |
+
+<Callout type="info">
+  `Mermaid` is registered in the default MDX components — no manual import needed. It supports all standard Mermaid diagram types (flowchart, sequence, class, state, ER, etc.).
+</Callout>
 
 ## Image Zoom
 

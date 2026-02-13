@@ -9,13 +9,13 @@ import defaultMdxComponents from "fumadocs-ui/mdx"
 import type { MDXComponents } from "mdx/types"
 import { CommandTab } from "./command-tab"
 import { GridItem } from "./grid-item"
+import { MermaidDiagram } from "./mermaid-diagram"
 import { SecretGenerator } from "./secret-generator"
 import { TechStack } from "./tech-stack"
 
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
     ...defaultMdxComponents,
-    // Custom Image Component
     img: (props) => (
       <ImageZoom
         className="rounded-md"
@@ -27,6 +27,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
         <Pre>{props.children}</Pre>
       </CodeBlock>
     ),
+    Mermaid: ({ children }: { children: string }) => <MermaidDiagram code={children.trim()} />,
     CommandTab: (props) => {
       return <CommandTab {...props} />
     },

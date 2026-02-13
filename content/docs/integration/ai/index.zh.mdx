@@ -7,43 +7,41 @@ AI 集成层为多厂商大语言模型（LLM）提供统一的文本生成接�
 
 ## 架构
 
-```mermaid
-flowchart TB
-    subgraph App
-        API[API 路由]
-        UI[UI 组件]
-    end
+<Mermaid>{`flowchart TB
+  subgraph App
+    API[API 路由]
+    UI[UI 组件]
+  end
 
-    subgraph Integration
-        getAIProvider[getAIProvider]
-        createProvider[createAIProvider]
-        customProvider[customProvider]
-    end
+  subgraph Integration
+    getAIProvider[getAIProvider]
+    createProvider[createAIProvider]
+    customProvider[customProvider]
+  end
 
-    subgraph Providers
-        OpenAI[OpenAI]
-        Anthropic[Anthropic]
-        Google[Google]
-        xAI[xAI]
-        Groq[Groq]
-        Others[...]
-    end
+  subgraph Providers
+    OpenAI[OpenAI]
+    Anthropic[Anthropic]
+    Google[Google]
+    xAI[xAI]
+    Groq[Groq]
+    Others[...]
+  end
 
-    subgraph Config
-        DB[(数据库配置)]
-    end
+  subgraph Config
+    DB[(数据库配置)]
+  end
 
-    API --> getAIProvider
-    getAIProvider --> DB
-    getAIProvider --> createProvider
-    createProvider --> customProvider
-    customProvider --> OpenAI
-    customProvider --> Anthropic
-    customProvider --> Google
-    customProvider --> xAI
-    customProvider --> Groq
-    customProvider --> Others
-```
+  API --> getAIProvider
+  getAIProvider --> DB
+  getAIProvider --> createProvider
+  createProvider --> customProvider
+  customProvider --> OpenAI
+  customProvider --> Anthropic
+  customProvider --> Google
+  customProvider --> xAI
+  customProvider --> Groq
+  customProvider --> Others`}</Mermaid>
 
 ## 模块结构
 
@@ -57,46 +55,81 @@ flowchart TB
 
 ## 快速开始
 
-### 1. 配置 API Key
+<div className="fd-steps">
+  <div className="fd-step">
+    ### 配置 API Key
+    进入 **后台 → AI 配置**，填写所需厂商的 API Key。也可通过环境变量配置。
+  </div>
+  <div className="fd-step">
+    ### 在 API 路由中获取 Provider
+    ```ts
+    import { getAIProvider } from "@/integrations/ai"
+    import { streamText } from "ai"
 
-进入 **后台 → AI 配置**，填写所需厂商的 API Key。也可通过环境变量配置。
+    export async function POST(req: Request) {
+      const provider = await getAIProvider()
+      const model = provider.languageModel("openai/gpt-4o")
 
-### 2. 在 API 路由中获取 Provider
+      const result = await streamText({
+        model,
+        messages: [{ role: "user", content: "你好" }],
+      })
 
-```ts
-import { getAIProvider } from "@/integrations/ai"
-import { streamText } from "ai"
+      return result.toDataStreamResponse()
+    }
+    ```
+  </div>
+  <div className="fd-step">
+    ### 使用模型元数据
+    ```ts
+    import {
+      getModelConfig,
+      canUseModel,
+      hasVisionSupport,
+      getCreditCost,
+      getModelsByProvider,
+    } from "@/integrations/ai"
 
-export async function POST(req: Request) {
-  const provider = await getAIProvider()
-  const model = provider.languageModel("openai/gpt-4o")
+    const model = getModelConfig("openai/gpt-4o")
+    const { canUse } = canUseModel("openai/gpt-4o", isProUser)
+    const hasVision = hasVisionSupport("openai/gpt-4o")
+    const cost = getCreditCost("openai/gpt-4o")
+    const openaiModels = getModelsByProvider("openai")
+    ```
+  </div>
+</div>
 
-  const result = await streamText({
-    model,
-    messages: [{ role: "user", content: "你好" }],
-  })
+## 模型能力
 
-  return result.toDataStreamResponse()
-}
-```
+每个模型包含以下能力元数据：
 
-### 3. 使用模型元数据
+| 能力 | 说明 |
+|------|------|
+| `vision` | 支持图片输入（多模态） |
+| `reasoning` | 支持扩展思考 / 链式推理 |
+| `pdf` | 支持 PDF 文档处理 |
 
-```ts
-import {
-  getModelConfig,
-  canUseModel,
-  hasVisionSupport,
-  getCreditCost,
-  getModelsByProvider,
-} from "@/integrations/ai"
+## 工具函数参考
 
-const model = getModelConfig("openai/gpt-4o")
-const { canUse } = canUseModel("openai/gpt-4o", isProUser)
-const hasVision = hasVisionSupport("openai/gpt-4o")
-const cost = getCreditCost("openai/gpt-4o")
-const openaiModels = getModelsByProvider("openai")
-```
+| 函数 | 说明 |
+|------|------|
+| `getModelConfig(modelId)` | 根据 ID 获取模型元数据 |
+| `canUseModel(modelId, isProUser)` | 检查用户是否可使用该模型（层级校验） |
+| `hasVisionSupport(modelId)` | 是否支持 vision |
+| `hasReasoningSupport(modelId)` | 是否支持 reasoning |
+| `hasPdfSupport(modelId)` | 是否支持 PDF |
+| `getMaxOutputTokens(modelId)` | 最大输出 token 数 |
+| `getModelParameters(modelId)` | 默认参数（temperature、topP 等） |
+| `getCreditCost(modelId)` | 单次调用积分消耗 |
+| `getModelsByProvider(provider)` | 按厂商列出模型 |
+| `getModelsByTier(tier)` | 按层级列出模型（free/pro） |
+| `getAvailableProviders()` | 列出所有有模型的厂商 |
+| `getAllModels()` | 列出所有模型 |
+
+## 模型层级
+
+- **free**: 所有用户可用
+- **pro**: 需要 Pro 订阅（`canUseModel` 会校验）
 
 ## 支持的厂商
 
@@ -115,11 +148,98 @@ const openaiModels = getModelsByProvider("openai")
 | SiliconFlow | 2 | `ai_siliconflow_api_key` |
 | Baseten | 6 | `ai_baseten_api_key` |
 
+## 模型列表（概览）
+
+| 厂商 | 数量 | 示例 |
+|------|------|------|
+| OpenAI | 22 | gpt-4o, gpt-5, o3, o4-mini, gpt-5.1-codex, gpt-oss-20b |
+| Anthropic | 5 | claude-haiku-4-5, claude-sonnet-4-5, claude-opus-4-5 |
+| Google | 10 | gemini-2.0-flash, gemini-2.5-pro, gemini-3-flash |
+| xAI | 9 | grok-3-mini, grok-4, grok-4-fast-thinking, grok-code |
+| Groq | 6 | llama-3.3-70b, qwen3-32b, kimi-k2 |
+| Mistral | 11 | ministral-3b, mistral-large, codestral, devstral |
+| Cohere | 3 | command-a, command-a-thinking, command-r-plus |
+| DeepSeek | 2 | deepseek-chat, deepseek-reasoner |
+| HuggingFace | 11 | qwen3-4b, qwen3-30b, qwen3-235b |
+| Novita | 21 | deepseek-v3.2, qwen3-coder-30b, glm-4.5, minimax-m2 |
+| SiliconFlow | 2 | deepseek-v3, qwen-2.5-72b |
+| Baseten | 6 | deepseek-v3, qwen3-coder-480b, glm-4.7, kimi-k2 |
+
+## Reasoning 模型
+
+`capabilities.reasoning: true` 的模型会使用 `extractReasoningMiddleware`，推理内容会包裹在 `<think>` 标签中并在最终输出中移除。如有推荐参数，可通过 `getModelParameters` 获取。
+
 ## 模型 ID 格式
 
 模型 ID 格式为 `provider/model-name`，例如 `openai/gpt-4o`、`anthropic/claude-sonnet-4-5`、`deepseek/deepseek-v3.2`。调用 `provider.languageModel(id)` 时使用该 ID。
 
-## 相关
+## 扩展
 
-- [文本 / LLM](/docs/integration/ai/text) — 详细用法与模型列表
-- [扩展](/docs/integration/ai/extend) — 接入新厂商或模型
+### 接入新厂商
+
+<div className="fd-steps">
+  <div className="fd-step">
+    ### 1. 类型 (`types.ts`)
+    在 `AIProviderKey` 中新增：
+    ```ts
+    export type AIProviderKey =
+      | "openai"
+      | "newprovider"  // 新增
+      | ...
+    ```
+  </div>
+  <div className="fd-step">
+    ### 2. Provider 实例 (`providers.ts`)
+    在 `createProviderInstances` 中初始化并在 `languageModels` 中注册模型。
+    ```ts
+    ...(p.newprovider && {
+      "newprovider/model-id": p.newprovider.chatModel("厂商实际模型ID"),
+    })
+    ```
+  </div>
+  <div className="fd-step">
+    ### 3. 配置 (`dynamic-config.ts`)
+    新增配置项，并在 `aiConfigGroups` 增加子分组。
+  </div>
+  <div className="fd-step">
+    ### 4. 国际化 + 配置提取
+    在 `config.content.ts` 中增加字段文案，在 `index.ts` 的 `extractProviderConfigs` 中映射配置。
+  </div>
+</div>
+
+### 接入新模型（已有厂商）
+
+<div className="fd-steps">
+  <div className="fd-step">
+    ### 1. 在 `providers.ts` 注册
+    ```ts
+    "openai/new-model": p.openai("openai实际模型名")
+    ```
+  </div>
+  <div className="fd-step">
+    ### 2. 在 `models.ts` 增加元数据
+    ```ts
+    {
+      id: "openai/new-model",
+      label: "New Model Name",
+      provider: "openai",
+      providerModelId: "openai实际模型名",
+      capabilities: { vision: false, reasoning: false, pdf: false },
+      tier: "free",
+      maxOutputTokens: 16384,
+      creditCost: 1,
+    }
+    ```
+  </div>
+</div>
+
+## 检查清单
+
+| 步骤 | 新厂商 | 新模型 |
+|------|--------|--------|
+| `types.ts` | 补充 `AIProviderKey` | — |
+| `providers.ts` | 实例 + `languageModels` | 补充 `languageModels` |
+| `models.ts` | — | 补充元数据 |
+| `dynamic-config.ts` | 配置项 + 子分组 | — |
+| `config.content.ts` | 国际化 | — |
+| `index.ts` | `extractProviderConfigs` | — |
