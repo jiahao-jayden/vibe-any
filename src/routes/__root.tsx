@@ -43,7 +43,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
       {
         property: "og:image",
-        content: siteConfig.images.ogImage,
+        content: `${import.meta.env.VITE_APP_URL}${siteConfig.images.ogImage}`,
       },
       {
         property: "og:url",
@@ -68,7 +68,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
       {
         name: "twitter:image",
-        content: siteConfig.images.ogImage,
+        content: `${import.meta.env.VITE_APP_URL}${siteConfig.images.ogImage}`,
       },
       {
         name: "twitter:url",
