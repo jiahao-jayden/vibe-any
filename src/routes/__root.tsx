@@ -30,8 +30,20 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
       {
         title: siteConfig.title,
-        description: siteConfig.description,
       },
+      {
+        name: "description",
+        content: siteConfig.description,
+      },
+      ...(siteConfig.robots?.meta ? [{ name: "robots", content: siteConfig.robots.meta }] : []),
+      ...(siteConfig.keywords?.length
+        ? [
+            {
+              name: "keywords",
+              content: siteConfig.keywords.join(", "),
+            },
+          ]
+        : []),
       // Open Graph
       {
         property: "og:title",

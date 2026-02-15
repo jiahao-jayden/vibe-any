@@ -1,7 +1,18 @@
 export const siteConfig = {
   title: "VibeAny",
   author: "Jayden & Lingjue",
-  description: "VibeAny",
+  description:
+    "VibeAny - AI SaaS starter kit with chat, subscriptions, credits, and admin. Built with TanStack Start, Stripe, and 100+ AI models.",
+  keywords: [
+    "AI SaaS",
+    "AI chat",
+    "TanStack Start",
+    "Stripe",
+    "subscription",
+    "credit system",
+    "admin dashboard",
+    "React",
+  ],
   theme: {
     defaultTheme: "system",
     enableSwitch: true,
@@ -10,6 +21,10 @@ export const siteConfig = {
     ogImage: "/og.jpg",
     logo: "/logo.svg",
     isInvert: true,
+  },
+  robots: {
+    meta: "index, follow",
+    header: "index, follow",
   },
   social: {
     github: "https://github.com/jiahao-jayden/vibe-any-tanstack",
