@@ -41,7 +41,6 @@ export function ChatPanel({ className }: ChatPanelProps) {
   const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL)
   const modelRef = useRef(selectedModel)
   modelRef.current = selectedModel
-  console.log("modelRef.current", modelRef.current)
   const [transport] = useState(
     () =>
       new DefaultChatTransport({
