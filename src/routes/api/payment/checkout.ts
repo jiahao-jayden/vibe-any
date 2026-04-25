@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { getPlanById, getPriceById } from "@/config/payment-config"
 import { getDefaultPaymentAdapter, getPaymentAdapter } from "@/integrations/payment/"
+import { cryptoCheckoutService } from "@/integrations/payment/crypto/crypto-checkout-service"
+import { isEnabledCryptoCurrency } from "@/integrations/payment/crypto/currencies"
+import { createCryptoErrorResponse, logCryptoError } from "@/integrations/payment/crypto/errors"
 import {
   generateProductName,
   getCheckoutPaymentType,
@@ -10,19 +13,25 @@ import { OrderService } from "@/services/order.service"
 import { logger } from "@/shared/lib/tools/logger"
 import { Resp } from "@/shared/lib/tools/response"
 import { apiAuthMiddleware } from "@/shared/middleware/auth.middleware"
-import type { PaymentProvider } from "@/shared/types/payment"
+import type { CheckoutProvider, PaymentProvider } from "@/shared/types/payment"
 
 export const Route = createFileRoute("/api/payment/checkout")({
   server: {
     middleware: [apiAuthMiddleware],
     handlers: {
       POST: async ({ context, request }) => {
+        let planId: string | undefined
+        let priceId: string | undefined
+        let provider: PaymentProvider | undefined
+        let currentOrderId: string | undefined
+
         try {
           const { user } = context.session
           const userId = user.id
 
           const body = await request.json()
-          const { planId, priceId, provider, successUrl, cancelUrl, metadata } = body
+          ;({ planId, priceId, provider, currentOrderId } = body)
+          const { successUrl, cancelUrl, metadata } = body
 
           if (!planId || !priceId) {
             return Resp.error("Missing required parameters: planId and priceId", 400)
@@ -38,8 +47,37 @@ export const Route = createFileRoute("/api/payment/checkout")({
             return Resp.error(`Price not found: ${priceId}`, 400)
           }
 
+          if (provider === "crypto") {
+            const cryptoCurrency = metadata?.cryptoCurrency
+            if (!isEnabledCryptoCurrency(cryptoCurrency)) {
+              return Resp.error(
+                "The selected crypto currency is invalid.",
+                400,
+                "invalid_crypto_currency"
+              )
+            }
+
+            const result = await cryptoCheckoutService.createOrReuseCheckout({
+              userId,
+              userEmail: user.email,
+              planId,
+              priceId,
+              cryptoCurrency,
+              currentOrderId,
+              successUrl,
+              cancelUrl,
+            })
+
+            return Resp.success({
+              provider: "crypto",
+              orderId: result.orderId,
+              sessionId: result.sessionId,
+              checkoutUrl: result.checkoutUrl,
+            })
+          }
+
           const adapter = provider
-            ? await getPaymentAdapter(provider as PaymentProvider)
+            ? await getPaymentAdapter(provider as CheckoutProvider)
             : await getDefaultPaymentAdapter()
 
           const paymentType = getCheckoutPaymentType(plan.planType)
@@ -93,6 +131,22 @@ export const Route = createFileRoute("/api/payment/checkout")({
             ...result,
           })
         } catch (error) {
+          if (provider === "crypto") {
+            logCryptoError("crypto_checkout_request_failed", error, {
+              userId: context.session.user.id,
+              planId,
+              priceId,
+              provider,
+              currentOrderId,
+            })
+
+            return createCryptoErrorResponse(error, {
+              code: "payment_validation_failed",
+              statusCode: 500,
+              userMessage: "Failed to create crypto checkout. Please try again.",
+            })
+          }
+
           logger.error("Error creating checkout:", error)
           const message = error instanceof Error ? error.message : "Unknown error"
           return Resp.error(`Failed to create checkout: ${message}`, 500)
