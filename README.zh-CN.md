@@ -35,7 +35,7 @@
 
 - 完整的**认证系统**：邮箱密码、Google/GitHub OAuth、魔法链接
 - 多供应商 **AI 聊天**：100+ 模型（OpenAI、Claude、Gemini、DeepSeek、Grok 等）
-- **支付集成**：Stripe、Creem、PayPal、微信支付、支付宝——订阅和一次性付款
+- **支付** 集成 Stripe、Creem、PayPal、微信支付、支付宝和加密货币支付（Solana Pay + PayRam 支持的加密货币）——支持订阅和一次性支付
 - **积分系统**：AI 计费，支持每日奖励、注册赠送、FIFO 消耗策略
 - 企业级**落地页**组件——响应式设计，SEO 友好
 - **管理后台**：用户管理、动态配置、角色管理
@@ -79,7 +79,7 @@
 | **认证** | 邮箱密码、Google、GitHub OAuth、魔法链接、邮箱验证（Better Auth） |
 | **RBAC** | 基于角色的权限控制，支持权限继承 |
 | **AI** | Vercel AI SDK，12 个供应商，100+ 模型，流式响应 |
-| **支付** | Stripe、Creem、PayPal、微信支付、支付宝——订阅和一次性付款 |
+| **支付** | Stripe、Creem、PayPal、微信支付、支付宝，以及通过 Solana Pay 和 PayRam 支持的加密货币实现的统一加密货币支付 |
 | **积分** | Token 计费，FIFO 消耗策略，每日奖励，注册赠送 |
 | **落地页** | Hero、功能介绍、用户评价、FAQ、CTA——全部可配置 |
 | **博客和文档** | MDX 博客 + Fumadocs 文档，多语言支持 |
@@ -158,7 +158,7 @@ graph TB
 | 数据获取 | [TanStack Query](https://tanstack.com/query) |
 | 数据库 | [PostgreSQL](https://www.postgresql.org) + [Drizzle ORM](https://orm.drizzle.team) |
 | 认证 | [Better Auth](https://www.better-auth.com) |
-| 支付 | [Stripe](https://stripe.com) / Creem / PayPal / 微信 / 支付宝 |
+| 支付 | [Stripe](https://stripe.com) / Creem / PayPal / 微信 / 支付宝 / Solana Pay / PayRam |
 | AI | [Vercel AI SDK](https://sdk.vercel.ai)（12 个供应商，100+ 模型） |
 | 样式 | [Tailwind CSS v4](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com) |
 | 国际化 | [Intlayer](https://intlayer.org) |
@@ -191,6 +191,8 @@ cp .env.example .env.local
 ```
 
 应用支持**零配置启动**——落地页、博客和文档无需数据库即可运行。如需启用认证和用户功能，请设置 `DATABASE_URL` 和 `BETTER_AUTH_SECRET`。
+
+要启用加密货币定价和结账界面，请设置 `VITE_CRYPTO_ENABLED=true`。您还可以使用 `VITE_CRYPTO_ENABLED_CURRENCIES` 控制显示哪些加密货币以及它们的显示顺序。
 
 ### 3. 初始化数据库（可选）
 
