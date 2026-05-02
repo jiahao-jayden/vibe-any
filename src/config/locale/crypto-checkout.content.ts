@@ -62,7 +62,50 @@ export default {
       zh: "PayRam 支持的网络可能会产生链上 Gas 与服务费，请先确认钱包余额足以覆盖这些费用。",
     }),
     openHostedPage: t({ en: "Open hosted payment page", zh: "打开托管支付页" }),
+    evmTxHashLabel: t({ en: "Transaction hash", zh: "交易哈希" }),
+    evmTxHashPlaceholder: t({
+      en: "Paste your transaction hash",
+      zh: "粘贴你的交易哈希",
+    }),
+    evmTxHashHelpNative: t({
+      en: "Send exactly BNB on BNB Smart Chain, then paste the final transaction hash here.",
+      zh: "请在 BNB Smart Chain 上支付准确的 BNB 金额，完成后把最终交易哈希粘贴到这里。",
+    }),
+    evmTxHashHelpToken: t({
+      en: "Send USDT on BNB Smart Chain using the token contract shown above, then paste the final transaction hash here.",
+      zh: "请在 BNB Smart Chain 上按上方代币合约发送 USDT，完成后把最终交易哈希粘贴到这里。",
+    }),
+    evmSubmitTx: t({ en: "Submit transaction hash", zh: "提交交易哈希" }),
+    evmConfirmProgress: t({ en: "Confirmations", zh: "确认进度" }),
     explorer: t({ en: "View transaction", zh: "查看交易" }),
+    evmErrorInvalidTxHash: t({
+      en: "Enter a valid transaction hash from BscScan or your wallet.",
+      zh: "请输入来自 BscScan 或钱包记录的有效交易哈希。",
+    }),
+    evmErrorWrongNetwork: t({
+      en: "This transaction was sent on the wrong network. Use BNB Smart Chain.",
+      zh: "这笔交易发送到了错误的网络，请使用 BNB Smart Chain。",
+    }),
+    evmErrorWrongAsset: t({
+      en: "This transaction does not match the expected asset. Check whether you sent BNB or USDT (BEP20).",
+      zh: "这笔交易的资产类型不匹配，请确认你发送的是 BNB 或 USDT（BEP20）。",
+    }),
+    evmErrorWrongRecipient: t({
+      en: "This transaction did not send funds to the checkout wallet. Verify the recipient address and try again.",
+      zh: "这笔交易没有把资金发送到当前收款钱包，请核对收款地址后再试。",
+    }),
+    evmErrorAmountMismatch: t({
+      en: "The transferred amount does not match this checkout. Verify the exact amount and submit the correct transaction.",
+      zh: "实际转账金额与当前支付单不匹配，请核对准确金额后再提交正确交易。",
+    }),
+    evmErrorTransactionFailed: t({
+      en: "This transaction failed on-chain. Please send a new transfer and submit the new hash.",
+      zh: "这笔交易在链上执行失败，请重新发起转账并提交新的交易哈希。",
+    }),
+    evmErrorRpcUnavailable: t({
+      en: "We could not verify this transaction right now. Please wait a moment and try again.",
+      zh: "暂时无法验证这笔交易，请稍等片刻后再试。",
+    }),
     genericError: t({
       en: "Failed to load the crypto checkout. Please try again.",
       zh: "加载加密货币支付页失败，请稍后重试。",

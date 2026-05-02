@@ -4,7 +4,7 @@ import type {
   subscriptionIntervalEnum,
   subscriptionStatusEnum,
 } from "@/db/subscription.schema"
-import type { CryptoPriceMap } from "./crypto"
+import type { CryptoCurrencyId } from "./crypto"
 
 /**
  * Payment Provider - inferred from database enum
@@ -135,7 +135,7 @@ export interface PlanPrice {
   currency: string
   interval?: PlanInterval
   trialPeriodDays?: number
-  cryptoPrices?: CryptoPriceMap
+  supportedCryptoCurrencies?: CryptoCurrencyId[]
 }
 
 /**

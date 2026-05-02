@@ -45,6 +45,12 @@ export class PayRamProvider {
       planId: params.planId,
       priceId: params.priceId,
       providerPaymentId: "",
+      ...(params.resolvedPrice.quoteSource ? { quoteSource: params.resolvedPrice.quoteSource } : {}),
+      ...(params.resolvedPrice.quoteRate ? { quoteRate: params.resolvedPrice.quoteRate } : {}),
+      ...(params.resolvedPrice.quotedAt ? { quotedAt: params.resolvedPrice.quotedAt } : {}),
+      ...(params.resolvedPrice.quoteExpiresAt
+        ? { quoteExpiresAt: params.resolvedPrice.quoteExpiresAt }
+        : {}),
       payramNetwork: params.currencyConfig.payramNetwork,
       payramCurrencyCode: params.currencyConfig.payramCurrencyCode,
       payramStandard: params.currencyConfig.payramStandard,
@@ -100,6 +106,12 @@ export class PayRamProvider {
       providerPaymentId: assignedPayment.providerPaymentId,
       payramPaymentUrl: assignedPayment.paymentUrl,
       payramQrPayload: assignedPayment.qrPayload,
+      ...(params.resolvedPrice.quoteSource ? { quoteSource: params.resolvedPrice.quoteSource } : {}),
+      ...(params.resolvedPrice.quoteRate ? { quoteRate: params.resolvedPrice.quoteRate } : {}),
+      ...(params.resolvedPrice.quotedAt ? { quotedAt: params.resolvedPrice.quotedAt } : {}),
+      ...(params.resolvedPrice.quoteExpiresAt
+        ? { quoteExpiresAt: params.resolvedPrice.quoteExpiresAt }
+        : {}),
       payramNetwork: assignedPayment.network,
       payramCurrencyCode: assignedPayment.currencyCode,
       payramStandard: assignedPayment.standard,

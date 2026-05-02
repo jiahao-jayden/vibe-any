@@ -58,6 +58,19 @@ function RouteComponent() {
 
   const [isRedirecting, setIsRedirecting] = useState(false)
   const [statusObservedAt, setStatusObservedAt] = useState<number | null>(null)
+  const [txHashErrorMessage, setTxHashErrorMessage] = useState<string | null>(null)
+
+  const actionErrorMessages = {
+    invalid_tx_hash: content.evmErrorInvalidTxHash.value,
+    wrong_network: content.evmErrorWrongNetwork.value,
+    wrong_asset: content.evmErrorWrongAsset.value,
+    wrong_recipient: content.evmErrorWrongRecipient.value,
+    payment_amount_mismatch: content.evmErrorAmountMismatch.value,
+    payment_underpaid: content.evmErrorAmountMismatch.value,
+    payment_overpaid: content.evmErrorAmountMismatch.value,
+    transaction_failed: content.evmErrorTransactionFailed.value,
+    rpc_unavailable: content.evmErrorRpcUnavailable.value,
+  }
 
   useEffect(() => {
     if (data?.status === "paid") {
@@ -74,6 +87,12 @@ function RouteComponent() {
 
     setStatusObservedAt(null)
   }, [data?.status, orderId])
+
+  useEffect(() => {
+    if (data) {
+      setTxHashErrorMessage(null)
+    }
+  }, [data])
 
   useEffect(() => {
     if (data?.status !== "waiting_payment" && data?.status !== "confirming") {
@@ -119,6 +138,27 @@ function RouteComponent() {
     },
   })
 
+  const { mutate: submitTxHash, isPending: isSubmittingTx } = useMutation({
+    mutationFn: async (txHash: string) =>
+      http<CryptoCheckoutData>(`/api/payment/crypto/${orderId}/submit-tx`, {
+        method: "POST",
+        body: { txHash },
+      }),
+    onSuccess: (result) => {
+      setTxHashErrorMessage(null)
+      queryClient.setQueryData(["crypto-checkout", orderId], result)
+    },
+    onError: (mutationError) => {
+      const message = getCheckoutLoadErrorMessage(
+        mutationError,
+        content.genericError.value,
+        actionErrorMessages
+      )
+      setTxHashErrorMessage(message ?? null)
+      toast.error(message)
+    },
+  })
+
   return (
     <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-6xl flex-col gap-6 px-6 py-10">
       <div className="flex items-center justify-between">
@@ -145,9 +185,15 @@ function RouteComponent() {
           checkout={data}
           currencyOptions={currencyOptions}
           isSwitchingCurrency={isRestarting}
+          isSubmittingTx={isSubmittingTx}
+          txHashErrorMessage={txHashErrorMessage ?? undefined}
           showNetworkCongestionHint={showNetworkCongestionHint}
           onCurrencyChange={restartCheckout}
           onRetry={() => restartCheckout(data.cryptoCurrency)}
+          onSubmitTxHash={(txHash) => {
+            setTxHashErrorMessage(null)
+            submitTxHash(txHash)
+          }}
         />
       ) : (
         <div className="flex min-h-80 items-center justify-center rounded-2xl border">

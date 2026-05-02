@@ -89,8 +89,9 @@ async function createOrRotateCryptoSubscription(
 export async function fulfillVerifiedCryptoPayment(params: {
   orderId: string
   signature: string
+  explorerUrl?: string
 }): Promise<Awaited<ReturnType<typeof findOrderById>>> {
-  const { orderId, signature } = params
+  const { orderId, signature, explorerUrl } = params
 
   return db.transaction(async (tx) => {
     const currentOrder = await findOrderById(orderId, tx)
@@ -147,7 +148,8 @@ export async function fulfillVerifiedCryptoPayment(params: {
             ...metadata,
             detailedStatus: "paid",
             txSignature: signature,
-            explorerUrl: solanaPayUrlBuilder.getExplorerUrl(signature),
+            explorerUrl:
+              explorerUrl ?? metadata.explorerUrl ?? solanaPayUrlBuilder.getExplorerUrl(signature),
           },
         },
         tx
@@ -160,7 +162,8 @@ export async function fulfillVerifiedCryptoPayment(params: {
       ...metadata,
       detailedStatus: "paid",
       txSignature: signature,
-      explorerUrl: solanaPayUrlBuilder.getExplorerUrl(signature),
+      explorerUrl:
+        explorerUrl ?? metadata.explorerUrl ?? solanaPayUrlBuilder.getExplorerUrl(signature),
     }
 
     const paidOrder = await updateOrderById(

@@ -1,7 +1,8 @@
 import { findOrderById } from "@/shared/model/order.model"
+import { CryptoPaymentError } from "./errors"
+import { evmPaymentVerifier } from "./evm-payment-verifier"
 import { buildCryptoCheckoutData, getCryptoOrderMetadata } from "./order-metadata"
 import { solanaPaymentVerifier } from "./solana-payment-verifier"
-import { CryptoPaymentError } from "./errors"
 
 export class CryptoStatusResolver {
   async resolve(orderId: string) {
@@ -37,6 +38,10 @@ export class CryptoStatusResolver {
 
     if (metadata.cryptoProvider === "solanapay") {
       return solanaPaymentVerifier.verifyPayment(orderId)
+    }
+
+    if (metadata.cryptoProvider === "evm_direct" && metadata.submittedTxHash) {
+      return evmPaymentVerifier.verifyPayment(orderId)
     }
 
     return buildCryptoCheckoutData(currentOrder)

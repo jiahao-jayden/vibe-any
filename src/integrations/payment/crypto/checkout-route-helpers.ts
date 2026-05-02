@@ -1,4 +1,5 @@
 import { getPriceById } from "@/config/payment-config"
+import { HttpError } from "@/shared/lib/tools/http-client"
 import type { CryptoCheckoutData, CryptoCurrencyId } from "@/shared/types/crypto"
 import { getEnabledCryptoCurrencies } from "./currencies"
 
@@ -24,9 +25,10 @@ export function buildCheckoutRestartPayload(params: {
 
 export function getCheckoutCurrencyOptions(checkout: CheckoutSummary) {
   const price = getPriceById(checkout.planId, checkout.priceId)
-  const pricedCurrencyIds = Object.keys(price?.cryptoPrices ?? {}) as CryptoCurrencyId[]
   const availableCurrencyIds =
-    pricedCurrencyIds.length > 0 ? pricedCurrencyIds : [checkout.cryptoCurrency]
+    price?.supportedCryptoCurrencies && price.supportedCryptoCurrencies.length > 0
+      ? price.supportedCryptoCurrencies
+      : [checkout.cryptoCurrency]
 
   return getEnabledCryptoCurrencies(availableCurrencyIds).map((currency) => ({
     id: currency.id,
@@ -34,7 +36,15 @@ export function getCheckoutCurrencyOptions(checkout: CheckoutSummary) {
   }))
 }
 
-export function getCheckoutLoadErrorMessage(error: unknown, fallbackMessage: string) {
+export function getCheckoutLoadErrorMessage(
+  error: unknown,
+  fallbackMessage: string,
+  errorMessages?: Partial<Record<string, string>>
+) {
+  if (error instanceof HttpError && error.errorCode && errorMessages?.[error.errorCode]) {
+    return errorMessages[error.errorCode]
+  }
+
   if (error instanceof Error && error.message.trim().length > 0) {
     return error.message
   }

@@ -43,6 +43,12 @@ export class SolanaPayProvider {
       planId: params.planId,
       priceId: params.priceId,
       solanaPayUrl: "",
+      ...(params.resolvedPrice.quoteSource ? { quoteSource: params.resolvedPrice.quoteSource } : {}),
+      ...(params.resolvedPrice.quoteRate ? { quoteRate: params.resolvedPrice.quoteRate } : {}),
+      ...(params.resolvedPrice.quotedAt ? { quotedAt: params.resolvedPrice.quotedAt } : {}),
+      ...(params.resolvedPrice.quoteExpiresAt
+        ? { quoteExpiresAt: params.resolvedPrice.quoteExpiresAt }
+        : {}),
       ...(params.resolvedPrice.interval ? { priceInterval: params.resolvedPrice.interval } : {}),
       ...(params.currencyConfig.tokenMint ? { tokenMint: params.currencyConfig.tokenMint } : {}),
     } satisfies SolanaCryptoOrderMetadata

@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui
 import { cn } from "@/shared/lib/utils"
 import type { CryptoCheckoutData, CryptoCurrencyId } from "@/shared/types/crypto"
 import { CryptoCurrencySelector } from "./crypto-currency-selector"
+import { EvmPaymentDetails } from "./evm-payment-details"
 import { PayRamPaymentDetails } from "./payram-payment-details"
 import { SolanaPaymentDetails } from "./solana-payment-details"
 
@@ -14,9 +15,12 @@ interface CryptoCheckoutCardProps {
   checkout: CryptoCheckoutData
   currencyOptions: Array<{ id: CryptoCurrencyId; label: string }>
   isSwitchingCurrency?: boolean
+  isSubmittingTx?: boolean
+  txHashErrorMessage?: string
   showNetworkCongestionHint?: boolean
   onCurrencyChange: (value: CryptoCurrencyId) => void
   onRetry: () => void
+  onSubmitTxHash?: (txHash: string) => void
 }
 
 function formatRemaining(seconds: number) {
@@ -31,7 +35,10 @@ function getCheckoutDisplayUnit(checkout: CryptoCheckoutData) {
       return "USDC"
     case "usdt_erc20":
     case "usdt_trc20":
+    case "usdt_bep20":
       return "USDT"
+    case "bnb_bsc":
+      return "BNB"
     default:
       return checkout.cryptoCurrency.toUpperCase()
   }
@@ -41,9 +48,12 @@ export function CryptoCheckoutCard({
   checkout,
   currencyOptions,
   isSwitchingCurrency,
+  isSubmittingTx,
+  txHashErrorMessage,
   showNetworkCongestionHint,
   onCurrencyChange,
   onRetry,
+  onSubmitTxHash,
 }: CryptoCheckoutCardProps) {
   const content = useIntlayer("crypto-checkout")
   const isPayableState = checkout.status === "waiting_payment" || checkout.status === "confirming"
@@ -148,6 +158,13 @@ export function CryptoCheckoutCard({
                 checkout={checkout}
                 showNetworkCongestionHint={showNetworkCongestionHint}
               />
+            ) : checkout.cryptoProvider === "evm_direct" ? (
+              <EvmPaymentDetails
+                checkout={checkout}
+                isSubmittingTx={isSubmittingTx}
+                txHashErrorMessage={txHashErrorMessage}
+                onSubmitTxHash={onSubmitTxHash}
+              />
             ) : (
               <PayRamPaymentDetails checkout={checkout} />
             )}
@@ -191,7 +208,7 @@ export function CryptoCheckoutCard({
             </Button>
           )}
 
-          {checkout.explorerUrl && (
+          {checkout.explorerUrl && (!isPayableState || checkout.cryptoProvider !== "evm_direct") && (
             <Button
               type="button"
               variant="outline"

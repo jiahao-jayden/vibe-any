@@ -1,5 +1,6 @@
 import type { CryptoCurrencyId } from "@/shared/types/crypto"
 import type { PaymentProvider, PlanPrice } from "@/shared/types/payment"
+import { getCryptoCurrencyConfig } from "@/integrations/payment/crypto/currencies"
 
 export interface PaymentMethodDisplayLabels {
   fiatLabel: string
@@ -7,6 +8,15 @@ export interface PaymentMethodDisplayLabels {
   paypalLabel: string
   wechatLabel: string
   alipayLabel: string
+}
+
+export type PriceDisplayMode = "fiat" | "exact_crypto" | "fiat_with_live_quote_note"
+
+export interface PriceDisplayResult {
+  amountText: string
+  unitText: string
+  isCrypto: boolean
+  mode: PriceDisplayMode
 }
 
 export function formatCryptoCurrencyUnit(currencyId: CryptoCurrencyId) {
@@ -22,17 +32,27 @@ export function formatCryptoCurrencyUnit(currencyId: CryptoCurrencyId) {
 }
 
 export function getPriceDisplay(
-  price: Pick<PlanPrice, "amount" | "cryptoPrices">,
+  price: Pick<PlanPrice, "amount" | "supportedCryptoCurrencies" | "currency">,
   provider: string,
   cryptoCurrency?: CryptoCurrencyId
-) {
+) : PriceDisplayResult {
   if (provider === "crypto" && cryptoCurrency) {
-    const cryptoAmount = price.cryptoPrices?.[cryptoCurrency]
-    if (cryptoAmount) {
+    const currencyConfig = getCryptoCurrencyConfig(cryptoCurrency)
+    if (currencyConfig.pricingMode === "fiat_peg") {
       return {
-        amountText: cryptoAmount,
+        amountText: `${price.amount / 100}`,
         unitText: formatCryptoCurrencyUnit(cryptoCurrency),
         isCrypto: true,
+        mode: "exact_crypto",
+      }
+    }
+
+    if (currencyConfig.pricingMode === "live_quote") {
+      return {
+        amountText: `${price.amount / 100}`,
+        unitText: "$",
+        isCrypto: false,
+        mode: "fiat_with_live_quote_note",
       }
     }
   }
@@ -41,7 +61,30 @@ export function getPriceDisplay(
     amountText: `${price.amount / 100}`,
     unitText: "$",
     isCrypto: false,
+    mode: "fiat",
   }
+}
+
+export function shouldShowLiveQuoteNote(
+  provider: string,
+  cryptoCurrency?: CryptoCurrencyId
+) {
+  if (provider !== "crypto" || !cryptoCurrency) {
+    return false
+  }
+
+  return getCryptoCurrencyConfig(cryptoCurrency).pricingMode === "live_quote"
+}
+
+export function getLiveQuoteNote(
+  template: string,
+  cryptoCurrency?: CryptoCurrencyId
+) {
+  if (!cryptoCurrency) {
+    return template
+  }
+
+  return template.replace("{asset}", formatCryptoCurrencyUnit(cryptoCurrency))
 }
 
 export function getPaymentMethodDisplayLabel(

@@ -9,6 +9,13 @@ type CryptoPaymentConfig = {
   rpcUrl: string
 }
 
+export type CryptoQuoteConfig = {
+  provider: "binance" | "mock"
+  apiUrl: string
+  timeoutMs: number
+  expiresInSeconds: number
+}
+
 export type PayRamConfig = {
   apiUrl: string
   apiKey: string
@@ -86,6 +93,20 @@ export function getCryptoPaymentConfig(): CryptoPaymentConfig {
     walletAddress: getSolanaPayWalletAddress(),
     network: getSolanaPayNetwork(),
     rpcUrl: getSolanaPayRpcUrl(),
+  }
+}
+
+export function getCryptoQuoteConfig(): CryptoQuoteConfig {
+  const configuredProvider = getEnv("CRYPTO_QUOTE_PROVIDER")
+  const timeoutMs = Number.parseInt(getEnv("CRYPTO_QUOTE_TIMEOUT_MS") ?? "5000", 10)
+  const expiresInSeconds = Number.parseInt(getEnv("CRYPTO_QUOTE_EXPIRES_IN_SECONDS") ?? "900", 10)
+
+  return {
+    provider: configuredProvider === "mock" ? "mock" : "binance",
+    apiUrl: (getEnv("CRYPTO_QUOTE_API_URL") ?? "https://api.binance.com").replace(/\/$/, ""),
+    timeoutMs: Number.isFinite(timeoutMs) && timeoutMs > 0 ? timeoutMs : 5000,
+    expiresInSeconds:
+      Number.isFinite(expiresInSeconds) && expiresInSeconds > 0 ? expiresInSeconds : 900,
   }
 }
 

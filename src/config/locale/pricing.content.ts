@@ -42,6 +42,22 @@ export default {
       en: "Crypto payments are irreversible and confirmed on-chain. Network fees may apply depending on the selected asset.",
       zh: "加密货币支付不可逆，且会通过链上确认。根据所选币种与网络，可能会产生额外链上手续费。",
     }),
+    cryptoLiveQuoteNotice: t({
+      en: "Final {asset} amount is quoted at checkout and locked until expiry.",
+      zh: "最终 {asset} 金额会在结账时按实时汇率报价，并锁定到支付单过期。",
+    }),
+    cryptoQuoteUnavailable: t({
+      en: "Live crypto pricing is temporarily unavailable. Please try again or switch currency.",
+      zh: "暂时无法获取实时加密货币报价，请稍后重试或切换币种。",
+    }),
+    cryptoQuoteTimeout: t({
+      en: "Live crypto pricing timed out. Please try again or switch currency.",
+      zh: "实时加密货币报价超时，请稍后重试或切换币种。",
+    }),
+    cryptoQuoteInvalid: t({
+      en: "Received an invalid live crypto quote. Please try again or switch currency.",
+      zh: "收到的实时加密货币报价无效，请稍后重试或切换币种。",
+    }),
     plans: {
       free: {
         title: t({ en: "Free", zh: "免费版" }),

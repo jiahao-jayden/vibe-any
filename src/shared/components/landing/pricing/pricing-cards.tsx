@@ -12,7 +12,9 @@ import {
 import { CryptoCurrencySelector } from "@/shared/components/crypto/crypto-currency-selector"
 import {
   getPaymentMethodDisplayLabel,
+  getLiveQuoteNote,
   getPriceDisplay,
+  shouldShowLiveQuoteNote,
   shouldShowPaymentMethod,
 } from "@/shared/components/landing/pricing/pricing-display"
 import { Button } from "@/shared/components/ui/button"
@@ -29,7 +31,7 @@ import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group"
 import { useGlobalContext } from "@/shared/context/global.context"
 import { useLocalizedNavigate } from "@/shared/hooks/use-localized-navigate"
 import { usePlanComparison } from "@/shared/hooks/use-plan-comparison"
-import { http } from "@/shared/lib/tools/http-client"
+import { HttpError, http } from "@/shared/lib/tools/http-client"
 import { cn } from "@/shared/lib/utils"
 import type { CryptoCurrencyId } from "@/shared/types/crypto"
 
@@ -38,7 +40,36 @@ interface PricingCardsProps {
   onSuccess?: () => void
 }
 
+type PricingErrorMessages = {
+  paymentFailed: string
+  upgradeFailed: string
+  cryptoQuoteUnavailable: string
+  cryptoQuoteTimeout: string
+  cryptoQuoteInvalid: string
+}
+
 const cryptoEnabled = isCryptoPaymentEnabled()
+
+export function getPricingCheckoutErrorMessage(
+  error: unknown,
+  isUpgradeAction: boolean,
+  messages: PricingErrorMessages
+) {
+  if (error instanceof HttpError) {
+    switch (error.errorCode) {
+      case "crypto_quote_unavailable":
+        return messages.cryptoQuoteUnavailable
+      case "crypto_quote_timeout":
+        return messages.cryptoQuoteTimeout
+      case "crypto_quote_invalid":
+        return messages.cryptoQuoteInvalid
+      default:
+        break
+    }
+  }
+
+  return isUpgradeAction ? messages.upgradeFailed : messages.paymentFailed
+}
 
 export function PricingCards({ variant = "default", onSuccess }: PricingCardsProps) {
   const navigate = useLocalizedNavigate()
@@ -136,6 +167,7 @@ export function PricingCards({ variant = "default", onSuccess }: PricingCardsPro
         endpoint,
         {
           method: "POST",
+          silent: isCryptoCheckout,
           body: {
             planId,
             priceId,
@@ -175,9 +207,15 @@ export function PricingCards({ variant = "default", onSuccess }: PricingCardsPro
         toast.error(content.paymentFailed.value)
       }
     },
-    onError: (_, variables) => {
+    onError: (error, variables) => {
       toast.error(
-        variables.isUpgradeAction ? content.upgradeFailed.value : content.paymentFailed.value
+        getPricingCheckoutErrorMessage(error, variables.isUpgradeAction, {
+          paymentFailed: content.paymentFailed.value,
+          upgradeFailed: content.upgradeFailed.value,
+          cryptoQuoteUnavailable: content.cryptoQuoteUnavailable.value,
+          cryptoQuoteTimeout: content.cryptoQuoteTimeout.value,
+          cryptoQuoteInvalid: content.cryptoQuoteInvalid.value,
+        })
       )
       setLoadingPlan(null)
     },
@@ -195,16 +233,14 @@ export function PricingCards({ variant = "default", onSuccess }: PricingCardsPro
         const isPopular = plan.display?.isRecommended
         const planContent = getPlanContent(plan.id)
         const providerKey = `${plan.id}:${displayPrice?.priceId || "default"}`
-        const pricedCryptoCurrencies = (
-          displayPrice?.cryptoPrices ? Object.keys(displayPrice.cryptoPrices) : []
-        ) as CryptoCurrencyId[]
-        const cryptoCurrencies = getEnabledCryptoCurrencies(pricedCryptoCurrencies).map(
+        const supportedCryptoCurrencies = displayPrice?.supportedCryptoCurrencies ?? []
+        const cryptoCurrencies = getEnabledCryptoCurrencies(supportedCryptoCurrencies).map(
           (currency) => ({
             id: currency.id,
             label: currency.label,
           })
         )
-        const defaultCryptoCurrency = getDefaultCryptoCurrencyId(pricedCryptoCurrencies)
+        const defaultCryptoCurrency = getDefaultCryptoCurrencyId(supportedCryptoCurrencies)
         const hasCryptoOption = !!displayPrice && cryptoEnabled && cryptoCurrencies.length > 0
         const selectedProvider = selectedProviders[providerKey] || defaultProvider
         const selectedCryptoCurrency =
@@ -416,6 +452,14 @@ export function PricingCards({ variant = "default", onSuccess }: PricingCardsPro
                         <p className="text-xs text-muted-foreground">
                           {content.cryptoDisclaimer.value}
                         </p>
+                        {shouldShowLiveQuoteNote(selectedProvider, selectedCryptoCurrency) && (
+                          <p className="text-xs text-muted-foreground">
+                            {getLiveQuoteNote(
+                              content.cryptoLiveQuoteNotice.value,
+                              selectedCryptoCurrency
+                            )}
+                          </p>
+                        )}
                       </div>
                     )}
                   </div>

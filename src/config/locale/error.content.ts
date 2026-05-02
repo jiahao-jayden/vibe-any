@@ -20,6 +20,18 @@ export default {
       en: "This crypto price is not available for the selected plan",
       zh: "当前方案未配置该加密货币价格",
     }),
+    crypto_quote_unavailable: t({
+      en: "Live crypto pricing is temporarily unavailable",
+      zh: "暂时无法获取实时加密货币报价",
+    }),
+    crypto_quote_timeout: t({
+      en: "Live crypto pricing timed out, please try again",
+      zh: "实时加密货币报价超时，请稍后重试",
+    }),
+    crypto_quote_invalid: t({
+      en: "Received an invalid live crypto quote",
+      zh: "收到的实时加密货币报价无效",
+    }),
     wallet_not_configured: t({
       en: "Crypto checkout is temporarily unavailable",
       zh: "加密货币支付暂时不可用",
@@ -64,6 +76,10 @@ export default {
       en: "The transferred amount does not match the checkout amount",
       zh: "实际转账金额与支付单金额不匹配",
     }),
+    payment_rate_limited: t({
+      en: "Too many transaction-hash submissions. Please wait a moment and try again.",
+      zh: "交易哈希提交过于频繁，请稍后再试。",
+    }),
     payment_validation_failed: t({
       en: "We could not validate this crypto payment",
       zh: "当前无法完成加密货币支付验证",
@@ -83,6 +99,34 @@ export default {
     provider_mapping_invalid: t({
       en: "The selected crypto currency is invalid",
       zh: "所选加密货币无效",
+    }),
+    invalid_tx_hash: t({
+      en: "The submitted transaction hash is invalid",
+      zh: "提交的交易哈希无效",
+    }),
+    wrong_network: t({
+      en: "This transaction belongs to a different network",
+      zh: "这笔交易属于错误的网络",
+    }),
+    transaction_failed: t({
+      en: "This transaction failed on-chain",
+      zh: "这笔交易在链上执行失败",
+    }),
+    transaction_too_old: t({
+      en: "This transaction predates the checkout and cannot be used",
+      zh: "这笔交易早于当前支付单，不能用于本次付款",
+    }),
+    wrong_asset: t({
+      en: "This transaction does not match the expected asset",
+      zh: "这笔交易的资产类型与当前支付单不匹配",
+    }),
+    wrong_recipient: t({
+      en: "This transaction does not pay the configured recipient wallet",
+      zh: "这笔交易没有支付到当前配置的收款钱包",
+    }),
+    rpc_unavailable: t({
+      en: "We could not verify this blockchain transaction right now",
+      zh: "暂时无法验证这笔链上交易",
     }),
     UNKNOWN_ERROR: t({ en: "Something went wrong", zh: "发生未知错误" }),
   },

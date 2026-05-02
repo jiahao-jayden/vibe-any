@@ -8,6 +8,7 @@ import type {
   CryptoCheckoutData,
   CryptoCurrencyId,
   CryptoOrderMetadata,
+  EvmDirectCryptoOrderMetadata,
   SolanaCryptoOrderMetadata,
 } from "@/shared/types/crypto"
 import { getCryptoPaymentConfig, isCryptoPaymentEnabled } from "./config"
@@ -15,6 +16,7 @@ import { getCryptoCurrencyConfig } from "./currencies"
 import { CryptoPaymentError } from "./errors"
 import {
   buildCryptoCheckoutData,
+  getEffectiveCryptoCheckoutExpiry,
   getCryptoCheckoutSessionId,
   getCryptoCheckoutUrl,
   getCryptoOrderMetadata,
@@ -22,6 +24,7 @@ import {
 } from "./order-metadata"
 import { cryptoPricingResolver } from "./pricing-resolver"
 import { resolveCryptoProviderIdForCurrency } from "./provider-router"
+import { evmDirectProvider } from "./providers/evm-direct-provider"
 import { payRamProvider } from "./providers/payram-provider"
 import { solanaPayProvider } from "./providers/solanapay-provider"
 
@@ -61,7 +64,7 @@ function isPendingAndReusable(
     return false
   }
 
-  return new Date(metadata.providerExpiresAt ?? metadata.checkoutExpiresAt).getTime() > Date.now()
+  return getEffectiveCryptoCheckoutExpiry(metadata).getTime() > Date.now()
 }
 
 function buildCheckoutResult(checkout: CryptoCheckoutData): CryptoCheckoutResult {
@@ -119,7 +122,7 @@ export class CryptoCheckoutService {
 
     const cryptoConfig = getCryptoPaymentConfig()
     const currencyConfig = getCryptoCurrencyConfig(cryptoCurrency)
-    const resolvedPrice = cryptoPricingResolver.resolve({ planId, priceId, cryptoCurrency })
+    const resolvedPrice = await cryptoPricingResolver.resolve({ planId, priceId, cryptoCurrency })
     const cryptoProvider = resolveCryptoProviderIdForCurrency(cryptoCurrency)
 
     if (cryptoProvider === "solanapay" && !cryptoConfig.walletAddress) {
@@ -182,7 +185,12 @@ export class CryptoCheckoutService {
         }
       }
 
-      const expireAt = new Date(Date.now() + currencyConfig.checkoutTimeout * 1000)
+      const quoteExpiresAt = resolvedPrice.quoteExpiresAt
+        ? new Date(resolvedPrice.quoteExpiresAt)
+        : new Date(Date.now() + currencyConfig.checkoutTimeout * 1000)
+      const configuredExpireAt = new Date(Date.now() + currencyConfig.checkoutTimeout * 1000)
+      const expireAt =
+        quoteExpiresAt.getTime() < configuredExpireAt.getTime() ? quoteExpiresAt : configuredExpireAt
       const draftMetadata =
         cryptoProvider === "solanapay"
           ? solanaPayProvider.createDraftMetadata({
@@ -194,15 +202,23 @@ export class CryptoCheckoutService {
               currencyConfig,
               resolvedPrice,
             })
-          : payRamProvider.createDraftMetadata({
-              planId,
-              priceId,
-              cryptoCurrency,
-              currencyConfig,
-              resolvedPrice,
-              successUrl,
-              cancelUrl,
-            })
+          : cryptoProvider === "payram"
+            ? payRamProvider.createDraftMetadata({
+                planId,
+                priceId,
+                cryptoCurrency,
+                currencyConfig,
+                resolvedPrice,
+                successUrl,
+                cancelUrl,
+              })
+            : evmDirectProvider.createDraftMetadata({
+                planId,
+                priceId,
+                cryptoCurrency,
+                currencyConfig,
+                resolvedPrice,
+              })
 
       const orderToInsert: typeof order.$inferInsert = {
         userId,
@@ -234,18 +250,31 @@ export class CryptoCheckoutService {
         })
       }
 
-      return payRamProvider.finalizeCheckout({
+      if (cryptoProvider === "payram") {
+        return payRamProvider.finalizeCheckout({
+          tx,
+          orderId: createdOrder.id,
+          userId,
+          userEmail,
+          planId,
+          priceId,
+          cryptoCurrency,
+          currencyConfig,
+          resolvedPrice,
+          successUrl,
+          cancelUrl,
+        })
+      }
+
+      return evmDirectProvider.finalizeCheckout({
         tx,
         orderId: createdOrder.id,
-        userId,
-        userEmail,
         planId,
         priceId,
         cryptoCurrency,
         currencyConfig,
         resolvedPrice,
-        successUrl,
-        cancelUrl,
+        metadata: createdOrder.metadata as unknown as EvmDirectCryptoOrderMetadata,
       })
     })
 

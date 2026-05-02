@@ -20,6 +20,7 @@ export function PayRamPaymentDetails({ checkout }: PayRamPaymentDetailsProps) {
   const content = useIntlayer("crypto-checkout")
   const contentRecord = content as Record<string, { value: string } | undefined>
   const detailLabelClassName = "text-xs uppercase tracking-wide text-muted-foreground"
+  const paymentUrl = checkout.payramPaymentUrl
 
   return (
     <div className="space-y-4 lg:col-start-2">
@@ -44,11 +45,11 @@ export function PayRamPaymentDetails({ checkout }: PayRamPaymentDetailsProps) {
               {content.copyAddress.value}
             </Button>
 
-            {checkout.payramPaymentUrl ? (
+            {paymentUrl ? (
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => copyText(checkout.payramPaymentUrl, content.copied.value)}
+                onClick={() => copyText(paymentUrl, content.copied.value)}
               >
                 <Link2Icon className="size-4" />
                 {contentRecord.copyUrl?.value ?? "Copy payment URL"}
@@ -102,12 +103,12 @@ export function PayRamPaymentDetails({ checkout }: PayRamPaymentDetailsProps) {
         </AlertDescription>
       </Alert>
 
-      {checkout.payramPaymentUrl ? (
+      {paymentUrl ? (
         <Button
           type="button"
           variant="outline"
           className="w-full"
-          onClick={() => window.open(checkout.payramPaymentUrl, "_blank", "noopener,noreferrer")}
+          onClick={() => window.open(paymentUrl, "_blank", "noopener,noreferrer")}
         >
           <ExternalLinkIcon className="mr-2 size-4" />
           {contentRecord.openHostedPage?.value ?? "Open hosted payment page"}
